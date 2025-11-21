@@ -1,4 +1,4 @@
-package com.nutricare.mvc.config;
+package com.nutricare.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
