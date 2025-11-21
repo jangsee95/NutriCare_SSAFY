@@ -12,25 +12,26 @@
 	<!-- id로 게시글 상세 조회 -->
 	<select id="selectById" resultType="Board">
 		SELECT * FROM board
-		WHERE id =
+		WHERE board_id =
 		#{id}
 	</select>
 
 	<!-- 게시글 등록 -->
-	<insert id="insert" parameterType="Board" useGeneratedKeys="true" keyProperty="boardId">
-		INSERT INTO board (title, content, category)
-		VALUES (#{title}, #{content}, #{category})
+	<insert id="insert" parameterType="Board"
+		useGeneratedKeys="true" keyProperty="boardId">
+		INSERT INTO board (title, content, category, user_id)
+		VALUES (#{title}, #{content}, #{category}, #{userId})
 	</insert>
 
-	<!-- 파일 등록  -->
+	<!-- 파일 등록 -->
 	<insert id="insertBoardImages" parameterType="Board">
-        INSERT INTO board_image (board_id, image_url)
-        VALUES
-        <foreach collection="images" item="image" separator=",">
-            (#{boardId}, #{image.imageUrl})
-        </foreach>
-    </insert>
-    
+		INSERT INTO board_image (board_id, image_url)
+		VALUES
+		<foreach collection="images" item="image" separator=",">
+			(#{boardId}, #{image.imageUrl})
+		</foreach>
+	</insert>
+
 	<!-- 게시글 내용 수정 -->
 	<update id="update" parameterType="Board">
 		UPDATE board
@@ -39,10 +40,10 @@
 	</update>
 
 	<!-- 게시글 조회수 증가 -->
-	<update id="updateViewCnt" parameterType="int">
+	<update id="updateViewCnt" parameterType="long">
 		UPDATE board
 		SET
-		view_cnt = view_cnt+1
-		WHERE id = #{id}
+		view_count = view_count + 1
+		WHERE board_id = #{id}
 	</update>
 </mapper>

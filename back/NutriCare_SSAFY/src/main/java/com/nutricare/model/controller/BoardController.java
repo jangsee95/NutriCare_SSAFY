@@ -41,6 +41,7 @@ public class BoardController {
 			}
 			return new ResponseEntity<List<Board>>(boardList, HttpStatus.NOT_FOUND);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -59,6 +60,7 @@ public class BoardController {
 			}
 			return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -92,6 +94,7 @@ public class BoardController {
 			}
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -107,6 +110,7 @@ public class BoardController {
 			}
 			return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

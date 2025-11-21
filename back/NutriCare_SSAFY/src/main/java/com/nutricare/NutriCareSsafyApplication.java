@@ -1,4 +1,4 @@
-package com.nutricare.mvc;
+package com.nutricare;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
