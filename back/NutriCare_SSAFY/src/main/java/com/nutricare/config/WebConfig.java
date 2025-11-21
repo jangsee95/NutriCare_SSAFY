@@ -1,11 +1,21 @@
 package com.nutricare.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.nutricare.interceptor.AdminInterceptor;
+import com.nutricare.interceptor.JwtInterceptor;
+
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+	
+	@Autowired
+	private JwtInterceptor jwtInterceptor;
+	@Autowired
+	private AdminInterceptor adminInterceptor;
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -14,4 +24,21 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/images/**")
                 .addResourceLocations("file:///C:/nutricare_images/");
     }
+    
+    @Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		// 1) 로그인 여부 확인(JWT로)
+		registry.addInterceptor(jwtInterceptor)
+				.addPathPatterns("/user/me", "/user/me/**", "/user/logout")
+				.addPathPatterns("/admin/**").excludePathPatterns("/user/login", "/user", "/user/")
+				.excludePathPatterns("/swagger-ui/**", "/v3/api-docs/**")
+				.excludePathPatterns("/css/**", "/js/**", "/img/**");
+		
+		// 2) 관리자 권한 확인
+        registry.addInterceptor(adminInterceptor)
+                .addPathPatterns("/admin/**");
+		
+//		registry.addInterceptor(adminInterceptor).addPathPatterns("/users");
+	}
+
 }
