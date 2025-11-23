@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/comment-api")
+@RequestMapping("/board-api")
 @Tag(name = "Comment RESful API", description = "댓글 CRUD를 제공하는 REST API")
 public class CommentController {
     private final CommentService commentService;
@@ -58,13 +58,11 @@ public class CommentController {
 
     // 댓글 수정
     @Operation(summary = "댓글 수정")
-    @PutMapping("/board/{boardId}/comment/{commentId}")
+    @PutMapping("/comment/{commentId}")
     public ResponseEntity<?> update(
-            @PathVariable("boardId") Long boardId,
             @PathVariable("commentId") Long commentId,
             @RequestBody Comment comment) {
         try {
-            comment.setBoardId(boardId);
             comment.setCommentId(commentId);
             int result = commentService.update(comment);
             if (result > 0) {

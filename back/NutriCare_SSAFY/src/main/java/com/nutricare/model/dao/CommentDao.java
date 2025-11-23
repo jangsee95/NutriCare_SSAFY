@@ -7,5 +7,5 @@ public interface CommentDao {
 	List<Comment> selectAll(long boardId);
 	int insert(Comment comment);
 	int update(Comment comment);
-	int delete(long boardId);
+	int delete(long commentId);
 }

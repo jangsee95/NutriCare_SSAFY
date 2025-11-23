@@ -34,8 +34,8 @@ public class CommentServiceImpl implements CommentService{
 	}
 
 	@Override
-	public int delete(long boardId) {
-		return commentDao.delete(boardId);
+	public int delete(long commentId) {
+		return commentDao.delete(commentId);
 	}
 
 }
