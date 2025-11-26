@@ -65,7 +65,7 @@ CREATE TABLE `photo` (
 CREATE TABLE `analysis_result` (
   `analysis_id`    BIGINT       NOT NULL AUTO_INCREMENT,
   `photo_id`       BIGINT       NOT NULL,
-  `diagnosis_name` VARCHAR(50)  NOT NULL,         -- 아토피 등 라벨
+  `diagnosis_name` VARCHAR(50)  NOT NULL,         -- {'건선': 0, '아토피': 1, '여드름': 2, '정상': 3, '주사': 4, '지루': 5}
   `created_at`     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`analysis_id`),
   KEY `idx_analysis_photo` (`photo_id`),
