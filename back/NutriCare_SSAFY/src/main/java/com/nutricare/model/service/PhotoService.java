@@ -1,11 +1,10 @@
-package com.nutricare.model.dao;
+package com.nutricare.model.service;
 
 import java.util.List;
 
 import com.nutricare.model.dto.Photo;
 
-public interface PhotoDao {
-	
+public interface PhotoService {
 	int insert(Photo photo);
 	List<Photo> selectListByUserId(long userId);
 	Photo selectOne(long photoId);
