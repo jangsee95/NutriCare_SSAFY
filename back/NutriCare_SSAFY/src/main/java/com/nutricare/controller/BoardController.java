@@ -86,8 +86,9 @@ public class BoardController {
 	// 4. 게시글 수정
 	@Operation(summary = "게시글 수정", description = "게시글 내용을 수정합니다.")
 	@PutMapping("/board/{boardId}")
-	public ResponseEntity<?> update(@PathVariable("boardId") long id, @RequestBody Board board) {
+	public ResponseEntity<?> update(@PathVariable("boardId") long boardId, @RequestBody Board board) {
 		try {
+			board.setBoardId(boardId);
 			int result = boardService.update(board);
 			if (result > 0) {
 				return new ResponseEntity<Integer>(result, HttpStatus.OK);
@@ -101,10 +102,10 @@ public class BoardController {
 
 	// 5. 게시글 삭제
 	@Operation(summary = "게시글 삭제", description = "ID에 해당하는 게시글을 삭제합니다.")
-	@DeleteMapping("/board/{baordId}")
-	public ResponseEntity<?> delete(@PathVariable("boardId") long id) {
+	@DeleteMapping("/board/{boardId}")
+	public ResponseEntity<?> delete(@PathVariable("boardId") long boardId) {
 		try {
-			int result = boardService.delete(id);
+			int result = boardService.delete(boardId);
 			if (result > 0) {
 				return new ResponseEntity<Integer>(result, HttpStatus.OK);
 			}
