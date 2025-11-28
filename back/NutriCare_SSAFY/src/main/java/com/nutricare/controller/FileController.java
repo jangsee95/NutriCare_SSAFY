@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,7 +49,7 @@ public class FileController {
         this.gcsProps = gcsProps;
     }
 
-    @Operation(summary = "게시글 이미지 업로드 (GCS)", description = "GCS에 업로드 후 board_image에 저장")
+    @Operation(summary = "게시글 이미지 업로드(GCS)", description = "GCS에 업로드 후 board_image에 저장")
     @PostMapping("/upload-board-image")
     public ResponseEntity<?> uploadBoardImage(@RequestParam("boardId") Long boardId,
                                               @RequestParam("file") List<MultipartFile> files) {
@@ -82,13 +83,17 @@ public class FileController {
         }
     }
 
-    @Operation(summary = "Photo 업로드 (GCS) 및 메타 저장", description = "GCS에 업로드 후 photo 테이블에 저장")
+    @Operation(summary = "Photo 업로드(GCS) 및 메타 저장", description = "JWT에서 userId를 읽어 GCS 업로드 후 photo 테이블에 저장")
     @PostMapping("/upload-with-meta")
     public ResponseEntity<?> uploadAndSavePhoto(@RequestParam("file") MultipartFile file,
-                                                @RequestParam("userId") Long userId) {
+                                                HttpServletRequest request) {
         try {
-            if (file.isEmpty() || userId == null) {
-                return new ResponseEntity<>("userId and file are required", HttpStatus.BAD_REQUEST);
+            Long userId = (Long) request.getAttribute("userId");
+            if (userId == null) {
+                return new ResponseEntity<>("Invalid token: userId not found", HttpStatus.UNAUTHORIZED);
+            }
+            if (file.isEmpty()) {
+                return new ResponseEntity<>("file is required", HttpStatus.BAD_REQUEST);
             }
 
             String objectName = buildObjectName(gcsProps.getPrefixPhoto(), String.valueOf(userId), file.getOriginalFilename());
