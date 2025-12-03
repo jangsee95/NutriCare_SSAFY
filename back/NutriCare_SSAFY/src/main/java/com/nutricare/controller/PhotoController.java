@@ -16,9 +16,11 @@ import com.nutricare.model.dto.Photo;
 import com.nutricare.model.service.PhotoService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/photo-api")
+@Tag(name = "Photo RESTful API", description = "사용자 얼굴 사진 CRD을 할수있는 REST API")
 public class PhotoController {
 	
 	private final PhotoService photoService;
