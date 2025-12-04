@@ -65,3 +65,4 @@
 - [2025-12-04 16:23] 파일 업로드를 GCS 기반으로 전환: `google-cloud-storage` 의존성 추가, `GcsProperties`/`StorageConfig` 작성 및 `@EnableConfigurationProperties` 등록. `FileController`에서 게시글 이미지(`upload-board-image`)와 사진 업로드+메타 저장(`upload-with-meta`) 시 GCS 버킷/프리픽스(`board-images/`, `photo-images/`)에 업로드하고 URL을 DB에 저장. `application.properties`의 GCS 자격 경로를 로컬 사용자(`C:/Users/jangs/.../concrete-fabric-...json`)로 변경됨.
 - [2025-12-04 16:23] `AnalysisResultDao`/DTO/매퍼 파일만 추가되었으나 내용이 비어 있어 실제 분석 결과 저장 기능은 미구현 상태.
 - [2025-12-04 16:23] `PhotoController` 사용자별 조회 엔드포인트 경로 누락(`@GetMapping("/photo")` + `@PathVariable userId`)을 확인, 호출 불가 상태 기록.
+- [2025-12-04 18:46] `RagApiServiceImpl`에서 `ObjectMapper`에 `JavaTimeModule`을 등록해 Java Time 직렬화 문제를 방지하고, 불필요 주석을 제거.
