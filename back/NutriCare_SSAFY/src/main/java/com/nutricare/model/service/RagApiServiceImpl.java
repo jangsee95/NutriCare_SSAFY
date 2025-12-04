@@ -8,9 +8,9 @@ import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nutricare.model.dto.RagDietContext;
 
-// RAG 호출 전용 서비스 (이게 내가 말한 RagClient 역할)
 @Service
 public class RagApiServiceImpl implements RagApiService{
 
@@ -22,6 +22,7 @@ public class RagApiServiceImpl implements RagApiService{
     public RagApiServiceImpl() {
         this.restTemplate = new RestTemplate();
         this.objectMapper = new ObjectMapper();
+        this.objectMapper.registerModule(new JavaTimeModule());
     }
 
     public String requestDietGeneration(RagDietContext context) {
