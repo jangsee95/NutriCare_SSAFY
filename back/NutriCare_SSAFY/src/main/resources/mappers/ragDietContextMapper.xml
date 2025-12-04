@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.nutricare.model.dao.RagDietContextDao">
+
+    <select id="findRagDietContextByRecId"
+            parameterType="long"
+            resultType="com.nutricare.model.dto.RagDietContext">
+
+        SELECT
+            -- user
+            u.name          AS userName,
+            u.birth_year    AS birthYear,
+            u.gender        AS gender,
+
+            -- health_profile
+            hp.height_cm      AS heightCm,
+            hp.weight_kg      AS weightKg,
+            hp.activity_level AS activityLevel,
+            hp.goal_type      AS healthGoalType,
+            hp.updated_at     AS healthUpdatedAt,
+
+            -- analysis_result
+            ar.diagnosis_name AS diagnosisName,
+            ar.created_at     AS analysisCreatedAt,
+
+            -- diet_recommendation
+            dr.memo           AS recMemo,
+            dr.created_at     AS recCreatedAt
+
+        FROM diet_recommendation dr
+        JOIN health_profile hp
+          ON dr.health_id = hp.health_id
+        JOIN `user` u
+          ON hp.user_id = u.user_id
+        LEFT JOIN analysis_result ar
+          ON dr.analysis_id = ar.analysis_id
+
+        WHERE dr.rec_id = #{recId}
+
+    </select>
+
+</mapper>
