@@ -16,9 +16,11 @@ import com.nutricare.model.dto.Photo;
 import com.nutricare.model.service.PhotoService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/photo-api")
+@Tag(name = "Photo RESTful API", description = "사용자 얼굴 사진 CRD을 할수있는 REST API")
 public class PhotoController {
 	
 	private final PhotoService photoService;
@@ -43,7 +45,7 @@ public class PhotoController {
 	}
 	
 	@Operation(summary = "사용자별 사진 목록 조회", description = "userId로 업로드된 사진 메타데이터 리스트를 반환합니다.")
-	@GetMapping("/photo")
+	@GetMapping("/photo/{userId}")
 	public ResponseEntity<?> findListByUserId(@PathVariable("userId") long userId) {
 		try {
 			List<Photo> photos = photoService.selectListByUserId(userId);
