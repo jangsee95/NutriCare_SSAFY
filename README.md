@@ -1,88 +1,55 @@
 # NutriCare_SSAFY
-영양 관리·식단 분석을 목표로 한 SSAFY 팀 프로젝트입니다. Spring Boot 기반 백엔드(커뮤니티, 인증, 파일 업로드)와 ResNet18 기반 이미지 분석 FastAPI 모듈을 함께 제공합니다.
 
-- 백엔드: Spring Boot 3.5.8, MyBatis, MySQL 8, JWT(JJWT), BCrypt, Swagger(springdoc), Google Cloud Storage 업로드
-- AI: FastAPI, PyTorch ResNet18(MLflow 모델 로드), Google Auth
+영양 상태 분석과 맞춤 식단 추천을 제공하는 SSAFY 팀 프로젝트입니다.  
+- 백엔드: Spring Boot 3.5 + MyBatis 기반 REST API (JWT 인증, GCS 업로드, 식단/RAG 연동)  
+- AI: FastAPI + MLflow로 로드한 ResNet18 추론 서비스
+Git remote repo: https://github.com/Seonyeol-Jeong/NutriCare_SSAFY/tree/main/back/NutriCare_SSAFY/src/main/java/com/nutricare
 
-## 서비스 흐름(요약)
-1) 사용자가 회원가입/로그인(JWT 발급) 후 사진을 업로드하면 GCS에 저장되고 DB(photo)에 메타데이터가 기록됩니다.
-2) FastAPI 추론 서버가 MLflow에 저장된 ResNet18 모델을 불러와 사진을 분류하고 진단명을 반환합니다.
-3) 향후 분석 결과(analysis_result)와 식단 추천(diet_*)을 연동할 수 있도록 테이블이 미리 정의되어 있습니다.
-4) 커뮤니티 게시글/댓글을 통해 정보 공유가 가능합니다.
+## 레포지토리 구성
+- `back/NutriCare_SSAFY`: Spring Boot 애플리케이션, MyBatis 매퍼, JWT 인터셉터, GCS 업로더
+- `back/res/sql.sql`: MySQL 스키마 및 기본 데이터 스크립트
+- `AI/src/resnet_api.py`, `AI/src/resnet_mlflow.py`: FastAPI 추론 엔드포인트와 MLflow 모델 로더
+- `AI/notebooks/*`: MLflow 실행 결과(모델 아티팩트)
+- `requirements.txt`: FastAPI/MLflow/PyTorch 등 AI 서비스 의존성
 
-## 주요 기능
-- 인증/권한
-  - 회원가입(BCrypt 해시), 로그인 시 JWT 발급, `/user/me` 자기 정보 조회·수정·탈퇴
-  - 인터셉터로 JWT 검증, `/admin/**`는 role=ADMIN 사용자만 접근
-- 커뮤니티
-  - 게시글 CRUD 및 조회수 증가, 게시글 이미지 다중 업로드(board_image)
-  - 댓글 CRUD
-- 사진/분석 파이프라인
-  - 사진 메타데이터 저장(photo), 분석/식단 추천용 테이블(analysis_result, diet_*) 사전 정의
-  - GCS 업로드 API: 게시글 이미지 `/file-api/upload-board-image`, 사진 업로드+DB 저장 `/file-api/upload-with-meta`
-- 문서/테스트
-  - Swagger UI: `http://localhost:8080/swagger-ui/index.html`
-  - DB 스키마 스크립트: `back/res/sql.sql`
+## 백엔드 주요 기능
+- 인증/인가: 회원가입·로그인(JWT 발급), 내 정보 조회·수정·탈퇴, ROLE(USER/ADMIN) 관리, 관리자 전용 전체 사용자 조회(`/admin/all`)
+- 게시판: 게시글 CRUD, 조회수 증가, 댓글 CRUD, 게시글 이미지(GCS 업로드) 매핑
+- 사진 관리: JWT 기반 사진 업로드(`/file-api/upload-with-meta`) 후 DB 기록, 사진 단건/사용자별 조회, 삭제
+- 건강·식단: diet_recommendation/diet_result CRUD, `/api/rag/diet/{recId}`에서 컨텍스트를 모아 FastAPI RAG 서비스 호출 후 diet_result 저장
+- 문서화/보안: Swagger UI(`/swagger-ui/index.html`)에서 Bearer Token 입력 후 테스트 가능, `/admin/**`는 role=ADMIN 필요
 
-## 폴더 구조
-- `back/NutriCare_SSAFY`: Spring Boot 프로젝트
-  - `src/main/java/com/nutricare/config`: MyBatis, Swagger, GCS, WebMvc/JWT 인터셉터 설정, `.env` 로더
-  - `src/main/java/com/nutricare/controller`: User/Admin, Board, Comment, Photo, 파일 업로드 REST 컨트롤러
-  - `src/main/java/com/nutricare/interceptor`: `JwtInterceptor`, `AdminInterceptor`
-  - `src/main/java/com/nutricare/model`: DTO/DAO/Service, `src/main/resources/mappers/*.xml`
-  - `src/main/resources/application.properties`: DB·GCS·JWT 설정 예시
-- `back/res/sql.sql`: MySQL 스키마/테이블 생성 스크립트
-- `AI/src`: ResNet18 추론(`resnet_mlflow.py`), FastAPI 엔드포인트(`resnet_api.py`)
-- `AI/data/train`: 클래스 이름 로드용 ImageFolder 디렉터리(없으면 경고 로그)
-- `AI/notebooks/mlruns/.../artifacts/model`: MLflow로 저장된 기본 모델 경로
+## 백엔드 실행 가이드
+1) 준비물: JDK 17+, Maven 3.9+, MySQL 8+, (선택) GCS 서비스 계정  
+2) DB: `back/res/sql.sql`로 `nutricare_db` 생성/초기화  
+3) 환경변수: `back/NutriCare_SSAFY/.env`의 `JWT_SECRET`, `GOOGLE_APPLICATION_CREDENTIALS` 등을 채우고 `src/main/resources/application.properties`에서 DB 계정 및 `gcs.*`(bucket/base-url/prefix/credentials-path)을 환경에 맞게 수정  
+4) 실행: `cd back/NutriCare_SSAFY && mvn spring-boot:run`  
+5) 테스트: `http://localhost:8080/swagger-ui/index.html` 접속 → Authorize 버튼에서 Bearer 입력  
+6) GCS: `gcs.bucket-name`, `gcs.prefix-board`, `gcs.prefix-photo`, `gcs.credentials-path`를 운영 경로로 교체
 
-## 사전 준비
-- JDK 17+, Maven 3.9+, MySQL 8.x
-- Python 3.10+ (가상환경 권장), CUDA 환경이 없으면 CPU로 동작
-- GCS 서비스 계정 키(json)와 버킷(예: `nutricare-images`)
-- `.env` 또는 시스템 환경변수로 아래 값을 설정
-
+## AI/추론 서비스
+- 설치: `pip install -r requirements.txt` (PyTorch CUDA 버전은 환경에 맞게 조정)
+- 기본 모델: `AI/notebooks/mlruns/.../artifacts/model`에 저장된 ResNet18, 클래스 이름은 `AI/data/train` 하위 폴더에서 자동 로드
+- 실행: `cd AI/src && uvicorn resnet_api:app --host 0.0.0.0 --port 8000`
+- 예시 요청:
+```bash
+curl -X POST http://localhost:8000/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"photo_id":1,"user_id":1,"photo_url":"file:///path/to/image.jpg"}'
 ```
-SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/nutricare_db?serverTimezone=UTC
-SPRING_DATASOURCE_USERNAME=ssafy
-SPRING_DATASOURCE_PASSWORD=ssafy
+- 응답: `{"analysis_id": null, "photo_id": 1, "diagnosis_name": "<예측값>"}`
+- Spring 측 RAG 연동은 `http://fastapi-server:8000/rag/diet` 엔드포인트가 존재한다고 가정하며 `/api/rag/diet/{recId}`에서 호출
 
-JWT_SECRET=this_is_super_long_jwt_secret_key_1234   # 32바이트 이상
+## 주요 API
+- 사용자: `POST /user`, `POST /user/login`, `GET|PATCH|DELETE /user/me`, `POST /user/logout`
+- 관리자: `GET /admin/all`
+- 게시판: `GET/POST /board-api/board`, `GET/PUT/DELETE /board-api/board/{boardId}`
+- 댓글: `GET/POST /board-api/board/{boardId}/comment`, `PUT/DELETE /board-api/comment/{commentId}`
+- 파일/GCS: `POST /file-api/upload-board-image`, `POST /file-api/upload-with-meta`(JWT)
+- 사진: `GET /photo-api/photo/detail/{photoId}`, `GET /photo-api/photo/{userId}`, `POST /photo-api/photo`, `DELETE /photo-api/photo/{photoId}`
+- 식단: `GET /diet-api/result/list/{recId}`, `GET /diet-api/result/{mealId}`, `POST /diet-api/result`, `PUT /diet-api/result`, `DELETE /diet-api/result/{mealId}`
+- RAG: `POST /api/rag/diet/{recId}` – 컨텍스트 조회 → FastAPI 호출 → diet_result 저장
 
-GCS_BUCKET_NAME=nutricare-images
-GCS_BASE_URL=https://storage.googleapis.com
-GCS_PREFIX_BOARD=board-images/
-GCS_PREFIX_PHOTO=photo-images/
-GOOGLE_APPLICATION_CREDENTIALS=back/NutriCare_SSAFY/concrete-fabric-479604-h3-cd9c0c483611.json
-```
-
-> `DotenvEnvironmentPostProcessor`가 루트 또는 클래스패스의 `.env`를 자동 로드합니다. 민감 정보는 Git에 커밋하지 마세요.
-
-## 백엔드 실행
-1) DB 초기화: `mysql -u <user> -p < back/res/sql.sql`
-2) 설정 확인: `back/NutriCare_SSAFY/src/main/resources/application.properties` 또는 `.env`에서 DB/GCS/JWT 값을 실제 환경에 맞게 수정
-3) 실행
-   - Windows: `cd back/NutriCare_SSAFY && mvnw.cmd spring-boot:run`
-   - macOS/Linux: `cd back/NutriCare_SSAFY && ./mvnw spring-boot:run`
-4) API 문서: `http://localhost:8080/swagger-ui/index.html`
-
-## AI 추론 서버 실행(FastAPI)
-1) 의존성 설치
-```
-python -m venv .venv
-.\\.venv\\Scripts\\activate  # macOS/Linux: source .venv/bin/activate
-pip install -r requirements.txt
-```
-2) 필요 시 클래스/모델 경로 수정
-   - 클래스 이름: `AI/data/train` 디렉터리 하위 폴더명 자동 로드
-   - 모델 경로: `AI/src/resnet_mlflow.py`의 `DEFAULT_MODEL_URI`를 MLflow 모델 위치로 변경하거나 스크립트 실행 시 `--model-uri` 인자 사용
-3) API 서버 실행
-```
-uvicorn src.resnet_api:app --host 0.0.0.0 --port 8000
-```
-   - 엔드포인트: `POST /analyze` (`photo_id`, `user_id`, `photo_url`) → `diagnosis_name` 반환
-
-## 참고/주의
-- `application.properties`는 Git에 한 번 추적된 파일입니다. 무시하려면 `git rm --cached back/NutriCare_SSAFY/src/main/resources/application.properties` 후 커밋하세요.
-- 파일 업로드 기본 로컬 경로는 `C:/nutricare_images/`로 매핑되어 있습니다. 운영/개발 프로필별로 분리하려면 프로퍼티를 추가로 구성하세요.
-- 일부 경로(@Operation 설명, PhotoController의 PathVariable 등)는 실제 API 경로와 불일치할 수 있어 점검이 필요합니다. Swagger에서 확인 후 보완하세요.
+## 참고 및 제약
+- `AnalysisResult` 관련 API/매퍼는 미완성 상태이며, FastAPI 분석 결과를 DB에 적재하는 로직을 추가해야 합니다.
+- FastAPI RAG 엔드포인트 구현/배포는 레포에 포함되어 있지 않으므로 별도 구성 후 백엔드 URL을 맞춰야 합니다.
