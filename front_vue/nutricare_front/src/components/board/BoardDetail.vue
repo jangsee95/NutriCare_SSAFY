@@ -1,11 +1,11 @@
 <template>
-  <div>
-    <h2>App.vue</h2>
-    <RouterView/>
-  </div>
+    <div>
+        <h3>게시판 상세</h3>
+    </div>
 </template>
 
 <script setup>
+
 </script>
 
 <style scoped>

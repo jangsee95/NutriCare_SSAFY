@@ -1,9 +1,19 @@
+<template>
+  <div>
+    <h3>HomeView.vue</h3>
+    <Header />
+    <main>
+      <RouterView />
+    </main>
+    <Footer />
+  </div>
+</template>
+
 <script setup>
-import TheWelcome from '../components/TheWelcome.vue'
+import Header from '@/components/common/Header.vue'
+import Footer from '@/components/common/Footer.vue'
 </script>
 
-<template>
-  <main>
-    <TheWelcome />
-  </main>
-</template>
+<style scoped>
+
+</style>

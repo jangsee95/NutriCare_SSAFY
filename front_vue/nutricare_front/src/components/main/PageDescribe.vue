@@ -1,11 +1,11 @@
 <template>
-  <div>
-    <h2>App.vue</h2>
-    <RouterView/>
-  </div>
+    <div>
+        <h3>pageDescribe.vue</h3>
+    </div>
 </template>
 
 <script setup>
+
 </script>
 
 <style scoped>
