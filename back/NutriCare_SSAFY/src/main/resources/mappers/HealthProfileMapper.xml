@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nutricare.model.dao.HealthProfileDao">
+
+    <resultMap id="HealthProfileMap" type="com.nutricare.model.dto.HealthProfile">
+        <id property="healthId" column="health_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="heightCm" column="height_cm"/>
+        <result property="weightKg" column="weight_kg"/>
+        <result property="activityLevel" column="activity_level"/>
+        <result property="goalType" column="goal_type"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="selectByUserId" parameterType="long" resultMap="HealthProfileMap">
+        SELECT *
+        FROM health_profile
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insert" parameterType="com.nutricare.model.dto.HealthProfile"
+            useGeneratedKeys="true" keyProperty="healthId">
+        INSERT INTO health_profile 
+            (user_id, height_cm, weight_kg, activity_level, goal_type, updated_at)
+        VALUES 
+            (#{userId}, #{heightCm}, #{weightKg}, #{activityLevel}, #{goalType}, NOW())
+    </insert>
+
+    <update id="update" parameterType="com.nutricare.model.dto.HealthProfile">
+        UPDATE health_profile
+        SET 
+            height_cm = #{heightCm},
+            weight_kg = #{weightKg},
+            activity_level = #{activityLevel},
+            goal_type = #{goalType},
+            updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>
