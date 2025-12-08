@@ -1,8 +1,7 @@
 <template>
-  <div>
-    <h3>HomeView.vue</h3>
+  <div class="layout">
     <Header />
-    <main>
+    <main class="content">
       <RouterView />
     </main>
     <Footer />
@@ -15,5 +14,14 @@ import Footer from '@/components/common/Footer.vue'
 </script>
 
 <style scoped>
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
+.content {
+  flex: 1;
+  background: #f8f5eb;
+}
 </style>

@@ -1,13 +1,13 @@
 <template>
-  <div>
-    <h2>App.vue</h2>
-    <RouterView/>
-  </div>
+  <RouterView />
 </template>
 
 <script setup>
 </script>
 
 <style scoped>
-
+html, body {
+  margin: 0;
+  padding: 0;
+}
 </style>
