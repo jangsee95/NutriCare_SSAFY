@@ -36,33 +36,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { defineStore } from 'pinia'
-
-// TODO: 필요 시 전역 stores/user.js 로 분리
-const useUserStore = defineStore('user', {
-  state: () => ({
-    isLoggedIn: false,
-    userId: '',
-  }),
-  actions: {
-    async fetchMe() {
-      // TODO: axios.get('/api/user/me')
-      // 가데이터 세팅 예시
-      this.isLoggedIn = false
-      this.userId = 'User_ID'
-    },
-    async login(payload) {
-      // TODO: axios.post('/api/login', payload)
-      this.isLoggedIn = true
-      this.userId = payload?.userId || 'User_ID'
-    },
-    async logout() {
-      // TODO: axios.post('/api/logout')
-      this.isLoggedIn = false
-      this.userId = ''
-    },
-  },
-})
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -71,7 +45,7 @@ const menuItems = computed(() => [
   { key: 'main', label: 'Main', routeName: 'pageDescribe', routeOptions: { path: '/' } },
   { key: 'intro', label: '소개', routeName: 'engineeringDescribe' },
   { key: 'board', label: '게시판', routeName: 'boardList' },
-  { key: 'analysis', label: '분석', routeName: 'analysis' }, // TODO: 실제 라우트 이름에 맞게 교체
+  { key: 'analysis', label: '분석', routeName: 'analysisUpload' },
 ])
 
 function goTo(name, routeOptions = {}) {

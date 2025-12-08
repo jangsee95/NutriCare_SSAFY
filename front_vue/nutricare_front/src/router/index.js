@@ -1,10 +1,22 @@
-import BoardCreate from '@/components/board/boardCreate.vue'
-import BoardDetail from '@/components/board/boardDetail.vue'
+import BoardCreate from '@/components/board/BoardCreate.vue'
+import BoardDetail from '@/components/board/BoardDetail.vue'
 import BoardList from '@/components/board/BoardList.vue'
+import BoardUpdate from '@/components/board/BoardUpdate.vue'
 import EngineeringDescribe from '@/components/main/EngineeringDescribe.vue'
 import PageDescribe from '@/components/main/PageDescribe.vue'
-import BoardView from '@/views/BoardView.vue'
-import HomeView from '@/views/HomeView.vue'
+import BoardView from '@/views/board/BoardView.vue'
+import HomeView from '@/views/home/HomeView.vue'
+import AnalysisView from '@/views/analysis/AnalysisView.vue'
+import AnalysisUploadView from '@/views/analysis/AnalysisUploadView.vue'
+import AnalysisResultView from '@/views/analysis/AnalysisResultView.vue'
+import AnalysisListView from '@/views/analysis/AnalysisListView.vue'
+import AnalysisDetailView from '@/views/analysis/AnalysisDetailView.vue'
+import MyPageView from '@/views/user/MyPageView.vue'
+import UserJoinView from '@/views/user/UserJoinView.vue'
+import UserLoginView from '@/views/user/UserLoginView.vue'
+import UserDetailView from '@/views/user/UserDetailView.vue'
+import UserProfileView from '@/views/user/UserProfileView.vue'
+import UserPasswordView from '@/views/user/UserPasswordView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -43,11 +55,86 @@ const router = createRouter({
           component: BoardDetail,
         },
         {
+          path: 'update/:id',
+          name: 'boardUpdate',
+          component: BoardUpdate,
+        },
+        {
           path: '',
           name: 'boardList',
           component: BoardList,
         },
       ],
+    },
+    {
+      path: '/analysis',
+      component: AnalysisView,
+      children: [
+        {
+          path: '',
+          redirect: { name: 'analysisUpload' },
+        },
+        {
+          path: 'upload',
+          name: 'analysisUpload',
+          component: AnalysisUploadView,
+        },
+        {
+          path: 'result/:resultId',
+          name: 'analysisResult',
+          component: AnalysisResultView,
+        },
+        {
+          path: 'list/:userId',
+          name: 'analysisList',
+          component: AnalysisListView,
+        },
+        {
+          path: 'detail/:resultId',
+          name: 'analysisDetail',
+          component: AnalysisDetailView,
+        },
+      ],
+    },
+    {
+      path: '/login',
+      name: 'login',
+      redirect: { name: 'userLogin' },
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      redirect: { name: 'userJoin' },
+    },
+    {
+      path: '/mypage',
+      name: 'mypage',
+      component: MyPageView,
+    },
+    {
+      path: '/user/join',
+      name: 'userJoin',
+      component: UserJoinView,
+    },
+    {
+      path: '/user/login',
+      name: 'userLogin',
+      component: UserLoginView,
+    },
+    {
+      path: '/user/detail/:userid',
+      name: 'userDetail',
+      component: UserDetailView,
+    },
+    {
+      path: '/user/updateProfile/:userid',
+      name: 'updateProfile',
+      component: UserProfileView,
+    },
+    {
+      path: '/user/updatePassword/:userid',
+      name: 'updatePassword',
+      component: UserPasswordView,
     }
   ],
 })
