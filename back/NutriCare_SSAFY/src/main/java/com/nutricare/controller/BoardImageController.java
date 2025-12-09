@@ -2,15 +2,12 @@ package com.nutricare.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,11 +18,8 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.nutricare.config.GcsProperties;
-import com.nutricare.config.security.CustomUserDetails;
-import com.nutricare.model.dto.AnalysisResult;
 import com.nutricare.model.dto.Board;
 import com.nutricare.model.dto.BoardImage;
-import com.nutricare.model.dto.Photo;
 import com.nutricare.model.service.AiAnalysisApiService;
 import com.nutricare.model.service.AnalysisResultService;
 import com.nutricare.model.service.BoardService;
@@ -35,33 +29,27 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/file-api")
+@RequestMapping("/api/board-images")
 @Tag(name = "File Upload API", description = "Google Cloud Storage 업로드 API")
-public class FileController {
+public class BoardImageController {
 
-    private final PhotoService photoService;
     private final BoardService boardService;
     private final Storage storage;
     private final GcsProperties gcsProps;
-    private final AiAnalysisApiService aiAnalysisApiService;
-    private final AnalysisResultService analysisResultService;
 
-    public FileController(PhotoService photoService,
+    public BoardImageController(PhotoService photoService,
                           BoardService boardService,
                           Storage storage,
                           GcsProperties gcsProps,
                           AiAnalysisApiService aiAnalysisApiService,
                           AnalysisResultService analysisResultService) {
-        this.photoService = photoService;
         this.boardService = boardService;
         this.storage = storage;
         this.gcsProps = gcsProps;
-        this.aiAnalysisApiService = aiAnalysisApiService;
-        this.analysisResultService = analysisResultService;
     }
 
     @Operation(summary = "게시글 이미지 업로드(GCS)", description = "GCS에 업로드 후 board_image에 저장")
-    @PostMapping("/upload-board-image")
+    @PostMapping("")
     public ResponseEntity<?> uploadBoardImage(@RequestParam("boardId") Long boardId,
                                               @RequestParam("file") List<MultipartFile> files) {
         try {
@@ -91,59 +79,6 @@ public class FileController {
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("File Upload Failed");
-        }
-    }
-
-    @Operation(summary = "Photo 업로드(GCS) 및 메타 저장", description = "JWT에서 userId를 읽어 GCS 업로드 후 photo 테이블에 저장")
-    @PostMapping(value = "/upload-with-meta", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadAndSavePhoto(@RequestParam("file") MultipartFile file,
-                                                @AuthenticationPrincipal CustomUserDetails userDetails) { // ★ 변경됨
-        try {
-            // ★ 이전 코드 (삭제 대상): Long userId = (Long) request.getAttribute("userId");
-            // ★ 수정된 코드:
-            Long userId = userDetails.getUser().getUserId();
-            
-            if (file.isEmpty()) {
-                return new ResponseEntity<>("file is required", HttpStatus.BAD_REQUEST);
-            }
-            // 1. GCS 업로드
-            String objectName = buildObjectName(gcsProps.getPrefixPhoto(), String.valueOf(userId), file.getOriginalFilename());
-            String fileUrl = uploadToGcs(objectName, file);
-            // 2. Photo 메타데이터 DB저장
-            Photo photo = new Photo(userId, fileUrl);
-            photoService.insert(photo);
-            
-            // ============ AI 연동 ===========
-            String diagnosis = null;
-            try {
-                // 3. FastAPI로 분석 요청
-                diagnosis = aiAnalysisApiService.requestAnalysis(photo.getPhotoId(), userId, fileUrl);
-                
-                // 4. 분석 결과가 있으면 DB에 저장
-                if (diagnosis != null) {
-                    AnalysisResult analysisResult = new AnalysisResult(photo.getPhotoId(), diagnosis);
-                    analysisResultService.save(analysisResult);
-                }
-            } catch (Exception e) {
-                // AI 분석이 실패하더라도 사진 업로드는 성공으로 처리할지, 전체 롤백할지 결정해야 함.
-                // 여기서는 로그만 남기고 사진 업로드 성공 응답을 보내는 구조로 작성함.
-                e.printStackTrace();
-                System.err.println("AI 분석 요청 중 오류 발생: " + e.getMessage());
-            }
-            // ============ AI 연동 끝 ===========
-            
-            //5. 응답 반환
-            Map<String, Object> response = new HashMap<>();
-            response.put("fileUrl", fileUrl);
-            response.put("userId", userId);
-            response.put("photoId", photo.getPhotoId());
-            response.put("diagnosis", diagnosis);
-
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("File Upload Failed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

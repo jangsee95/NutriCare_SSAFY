@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public class RagDietContext {
 
     // ===== user =====
+	private Long userId;
     private String userName;
     private Integer birthYear;
     private String gender;
@@ -25,9 +26,13 @@ public class RagDietContext {
     private LocalDateTime recCreatedAt;
 
     // ===== Getter/Setter =====
+    
 
+    public Long getUserId() {return userId;}
+    public void setUserId(Long userId) {this.userId = userId;}
+    
     public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
+	public void setUserName(String userName) { this.userName = userName; }
 
     public Integer getBirthYear() { return birthYear; }
     public void setBirthYear(Integer birthYear) { this.birthYear = birthYear; }

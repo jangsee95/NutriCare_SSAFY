@@ -9,7 +9,7 @@ public interface DietResultDao {
     List<DietResult> selectByRecId(Long recId);
 
     // 2. 식단 결과 상세 조회 (meal_id로 단건 조회 - 필요시 사용)
-    DietResult selectByMealId(Long mealId);
+    DietResult selectByResultId(Long mealId);
 
     // 3. 새 diet_result 저장
     int insertDietResult(DietResult dietResult);

@@ -2,7 +2,7 @@ package com.nutricare.model.dto;
 
 public class DietResult {
 
-    private Long mealId;      // PK
+    private Long resultId;      // PK
     private Long recId;       // FK: diet_recommendation.rec_id
     private String menuName;  // 메뉴 이름
     private String description; // 설명
@@ -27,8 +27,8 @@ public class DietResult {
         this.skincareUrl = skincareUrl;
     }
 
-    public Long getMealId() { return mealId; }
-    public void setMealId(Long mealId) { this.mealId = mealId; }
+    public Long getResultId() { return resultId; }
+    public void setResultId(Long resultId) { this.resultId = resultId; }
 
     public Long getRecId() { return recId; }
     public void setRecId(Long recId) { this.recId = recId; }

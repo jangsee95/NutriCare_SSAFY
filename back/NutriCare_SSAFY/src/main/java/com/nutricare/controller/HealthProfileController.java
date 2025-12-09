@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/health-api")
+@RequestMapping("/api/health-profiles")
 @Tag(name = "HealthProfile API", description = "사용자 건강 정보(키, 몸무게 등) 관리 API")
 public class HealthProfileController {
 
@@ -28,7 +28,7 @@ public class HealthProfileController {
     }
 
     @Operation(summary = "내 건강 정보 조회", description = "로그인한 사용자의 건강 정보를 조회합니다.")
-    @GetMapping("/profile")
+    @GetMapping("/me")
     public ResponseEntity<?> getMyProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
         try {
             Long userId = userDetails.getUser().getUserId();
@@ -45,7 +45,7 @@ public class HealthProfileController {
     }
 
     @Operation(summary = "건강 정보 등록 및 수정", description = "건강 정보를 등록합니다. 이미 존재하면 수정합니다.")
-    @PostMapping("/profile")
+    @PostMapping("/me")
     public ResponseEntity<?> saveProfile(@RequestBody HealthProfile healthProfile,
                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
         try {

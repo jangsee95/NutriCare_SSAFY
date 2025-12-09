@@ -2,6 +2,7 @@ package com.nutricare.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -32,11 +33,12 @@ public class SecurityConfig {
 		.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 		// 4. URL별 권한 설정 (기존 WebConfig의 인터셉터 설정을 여기서 대체합니다)
 		.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/user/login", "/user", "/user/").permitAll()
+				.requestMatchers("/api/users/login", "/user", "/api/users").permitAll()
                 .requestMatchers("/images/**", "/css/**", "/js/**", "/favicon.ico").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/boards/**").permitAll()
                 // [관리자 전용] /admin 하위 모든 경로는 ADMIN 권한 필요
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
              // [나머지 모든 요청] 인증(로그인)된 사용자만 접근 가능
                 .anyRequest().authenticated()
          )

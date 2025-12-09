@@ -33,8 +33,8 @@ public class DietResultServiceImpl implements DietResultService {
     }
 
     @Override
-    public DietResult getDietResultById(Long mealId) {
-        return dietResultDao.selectByMealId(mealId);
+    public DietResult getDietResultById(Long resultId) {
+        return dietResultDao.selectByResultId(resultId);
     }
 
     @Override

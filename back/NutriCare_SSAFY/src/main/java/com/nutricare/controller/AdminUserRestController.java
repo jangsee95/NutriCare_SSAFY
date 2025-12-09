@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "Admin API", description = "관리자 전용 API (전체 회원 관리)")
 @RestController
-@RequestMapping("/admin")
+@RequestMapping("/api/admin")
 public class AdminUserRestController {
 
 	@Autowired
@@ -31,7 +31,7 @@ public class AdminUserRestController {
 	                      JWT 내부 Claims.role 값이 'ADMIN' 이어야 접근 가능
 	                      """
 	    )
-	@GetMapping("/all")
+	@GetMapping("/users")
 	public List<User> getAll() {
 		return userService.getAllUsers();
 	}
