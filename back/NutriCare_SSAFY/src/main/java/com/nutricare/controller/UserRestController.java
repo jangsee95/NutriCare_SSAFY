@@ -1,6 +1,5 @@
 package com.nutricare.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,7 +25,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "User API", description = "회원 관련 API (회원가입, 로그인, 내 정보 관리)")	
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/users")
 public class UserRestController {
 
     private final UserService userService;

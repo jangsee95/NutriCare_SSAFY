@@ -11,6 +11,7 @@
 
         SELECT
             -- user
+            u.user_id		AS userId,
             u.name          AS userName,
             u.birth_year    AS birthYear,
             u.gender        AS gender,

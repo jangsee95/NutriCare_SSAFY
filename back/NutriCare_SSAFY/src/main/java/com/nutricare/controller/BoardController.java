@@ -23,7 +23,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/board-api")
+@RequestMapping("/api/boards")
 @Tag(name = "Board RESful API", description = "게시글 CRUD를 할 수 있는 REST API")
 public class BoardController {
 
@@ -36,7 +36,7 @@ public class BoardController {
 
 	// 게시글 전체 목록 조회
 	@Operation(summary = "게시글 전체 조회", description = "모든 게시글을 조회합니다.")
-	@GetMapping("/board")
+	@GetMapping("")
 	public ResponseEntity<?> getList() {
 		try {
 			List<Board> boardList = boardService.selectAll();
@@ -52,7 +52,7 @@ public class BoardController {
 
 	// 2. 게시글 상세 조회
 	@Operation(summary = "게시글 상세 조회", description = "ID에 해당하는 게시글 하나를 조회합니다.")
-	@GetMapping("/board/{boardId}")
+	@GetMapping("/{boardId}")
 	public ResponseEntity<?> getBoard(@PathVariable("boardId") long id) {
 		try {
 			// 조회수 증가를 먼저 시키거나, 서비스 내부에서 처리할 수 있습니다.
@@ -71,7 +71,7 @@ public class BoardController {
 
 	// 3. 게시글 등록 (가장 중요! 파일 정보도 여기서 같이 받음)
 	@Operation(summary = "게시글 등록", description = "게시글과 이미지 정보를 등록합니다.")
-	@PostMapping("/board")
+	@PostMapping("")
 	public ResponseEntity<?> write(@RequestBody Board board, @AuthenticationPrincipal CustomUserDetails userDetails) {
 		// @RequestBody: 프론트에서 보낸 JSON 데이터(images 배열 포함)를 Board 객체로 변환
 		try {
@@ -92,7 +92,7 @@ public class BoardController {
 
 	// 4. 게시글 수정
 	@Operation(summary = "게시글 수정", description = "게시글 내용을 수정합니다.")
-	@PutMapping("/board/{boardId}")
+	@PutMapping("/{boardId}")
 	public ResponseEntity<?> update(@PathVariable("boardId") long boardId, @RequestBody Board board,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		try {
@@ -126,7 +126,7 @@ public class BoardController {
 
 	// 5. 게시글 삭제 (보안 강화)
 	@Operation(summary = "게시글 삭제", description = "ID에 해당하는 게시글을 삭제합니다. (작성자 본인만 가능)")
-	@DeleteMapping("/board/{boardId}")
+	@DeleteMapping("/{boardId}")
 	public ResponseEntity<?> delete(@PathVariable("boardId") long boardId,
 			@AuthenticationPrincipal CustomUserDetails userDetails) { // ★ 1. 유저 정보 주입
 		try {

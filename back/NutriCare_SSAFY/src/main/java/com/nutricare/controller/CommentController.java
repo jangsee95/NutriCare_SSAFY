@@ -20,7 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/board-api")
+@RequestMapping("/api")
 @Tag(name = "Comment RESful API", description = "댓글 CRUD를 제공하는 REST API")
 public class CommentController {
 	private final CommentService commentService;
@@ -31,7 +31,7 @@ public class CommentController {
 
 	// 특정 게시글의 댓글 목록 조회
 	@Operation(summary = "특정 게시글의 댓글 목록 조회")
-	@GetMapping("/board/{boardId}/comment")
+	@GetMapping("/boards/{boardId}/comment")
 	public ResponseEntity<?> list(@PathVariable("boardId") Long boardId) {
 		try {
 			return ResponseEntity.ok(commentService.selectAll(boardId.intValue()));
@@ -43,7 +43,7 @@ public class CommentController {
 
 	// 댓글 작성
 	@Operation(summary = "댓글 작성")
-	@PostMapping("/board/{boardId}/comment")
+	@PostMapping("/boards/{boardId}/comments")
 	public ResponseEntity<?> insert(@PathVariable("boardId") Long boardId, @RequestBody Comment comment,
 			@AuthenticationPrincipal CustomUserDetails userDetails) {
 		try {
@@ -62,7 +62,7 @@ public class CommentController {
 
 	// 댓글 수정
 	@Operation(summary = "댓글 수정")
-	@PutMapping("/comment/{commentId}")
+	@PutMapping("/comments/{commentId}")
 	public ResponseEntity<?> update(@PathVariable("commentId") Long commentId, @RequestBody Comment comment,
 			@AuthenticationPrincipal CustomUserDetails userDetails) { // ★ 유저 정보
 		try {
@@ -91,7 +91,7 @@ public class CommentController {
 
 	// 댓글 삭제 (soft delete)
 	@Operation(summary = "댓글 삭제 (소프트 삭제)")
-    @DeleteMapping("/comment/{commentId}")
+    @DeleteMapping("/comments/{commentId}")
     public ResponseEntity<?> delete(@PathVariable("commentId") Long commentId,
                                     @AuthenticationPrincipal CustomUserDetails userDetails) { // ★ 유저 정보
         try {
