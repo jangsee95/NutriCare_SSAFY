@@ -31,7 +31,7 @@ public class CommentController {
 
 	// 특정 게시글의 댓글 목록 조회
 	@Operation(summary = "특정 게시글의 댓글 목록 조회")
-	@GetMapping("/boards/{boardId}/comment")
+	@GetMapping("/boards/{boardId}/comments")
 	public ResponseEntity<?> list(@PathVariable("boardId") Long boardId) {
 		try {
 			return ResponseEntity.ok(commentService.selectAll(boardId.intValue()));
