@@ -22,8 +22,10 @@ public class BoardServiceImpl implements BoardService {
 		return  boardDao.selectAll();
 	}
 
+	@Transactional
 	@Override
 	public Board selectById(long id) {
+		updateViewCnt(id);
 		return boardDao.selectById(id);
 	}
 	
