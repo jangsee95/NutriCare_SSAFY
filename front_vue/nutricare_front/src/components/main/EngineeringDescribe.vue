@@ -3,7 +3,6 @@
     <div class="text-hero">
       <div class="hero-mark">NutriCare는...</div>
       <div class="hero-copy">
-        <p class="eyebrow">Text column</p>
         <h2 class="headline">핵심 기술로 AI·분석을 결합한 맞춤 헬스케어</h2>
         <p class="body">
           NutriCare는 최신 AI 모델과 데이터 기반 분석을 결합해 개인 맞춤 건강 및 피부 솔루션을 제공합니다.
