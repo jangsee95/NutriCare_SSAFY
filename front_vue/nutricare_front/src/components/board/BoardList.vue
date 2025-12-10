@@ -71,11 +71,11 @@ const router = useRouter()
 // 목데이터: 실제 API 호출 후 교체 (board_id, user_id, title, category, view_count, created_at)
 const posts = ref([
   { id: 1, category: '주사', title: '주사 관련법 꿀팁', commentCount: 12, author: '김', views: 102, created_at: '2025-01-10' },
-  { id: 2, category: '어두름', title: '어두름 관련법 꿀팁', commentCount: 5, author: '박', views: 32, created_at: '2025-01-09' },
+  { id: 2, category: '여드름', title: '여드름 관련법 꿀팁', commentCount: 5, author: '박', views: 32, created_at: '2025-01-09' },
   { id: 3, category: '건선', title: '건선 관련법 꿀팁', commentCount: 22, author: '이', views: 309, created_at: '2025-01-08' },
   { id: 4, category: '지루', title: '지루 관련법 꿀팁', commentCount: 17, author: '장', views: 235, created_at: '2025-01-07' },
   { id: 5, category: '주사', title: '주사 관련법 꿀팁', commentCount: 12, author: '김', views: 102, created_at: '2025-01-06' },
-  { id: 6, category: '어두름', title: '어두름 관련법 꿀팁', commentCount: 5, author: '박', views: 32, created_at: '2025-01-05' },
+  { id: 6, category: '여드름', title: '여드름 관련법 꿀팁', commentCount: 5, author: '박', views: 32, created_at: '2025-01-05' },
   { id: 7, category: '건선', title: '건선 관련법 꿀팁', commentCount: 22, author: '이', views: 309, created_at: '2025-01-04' },
   { id: 8, category: '지루', title: '지루 관련법 꿀팁', commentCount: 17, author: '장', views: 235, created_at: '2025-01-03' },
   { id: 9, category: '건선', title: '건선 관련법 꿀팁', commentCount: 22, author: '이', views: 309, created_at: '2025-01-02' },
