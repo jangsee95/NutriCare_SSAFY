@@ -14,6 +14,8 @@
         <label class="icon-label" for="confirmPw">🔒</label>
         <input id="confirmPw" v-model="form.confirm" type="password" placeholder="새로운 비밀번호 다시 확인" required />
       </div>
+      <p class="hint error" v-show="isMismatch">새 비밀번호가 일치하지 않습니다.</p>
+      <p class="hint ok" v-show="isMatch">새 비밀번호가 일치합니다.</p>
       <div class="actions">
         <button type="button" class="secondary" @click="goDetail">취소</button>
         <button type="submit" class="primary">변경</button>
@@ -23,7 +25,7 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
@@ -37,13 +39,18 @@ const form = reactive({
   confirm: '',
 })
 
+const isMatch = computed(() => form.newPw && form.confirm && form.newPw === form.confirm)
+const isMismatch = computed(() => form.newPw && form.confirm && form.newPw !== form.confirm)
+
 async function onSubmit() {
-  if (form.newPw !== form.confirm) {
+  if (isMismatch.value) {
     alert('새 비밀번호가 일치하지 않습니다.')
     return
   }
-  // TODO: axios 연동
-  await userStore.updateProfile({})
+  await userStore.updatePassword({
+    currentPassword: form.current,
+    newPassword: form.newPw,
+  })
   goDetail()
 }
 
@@ -103,6 +110,20 @@ input {
 
 .secondary {
   background: #efefef;
+}
+
+.hint {
+  margin: 4px 0 10px 44px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.hint.error {
+  color: #d9534f;
+}
+
+.hint.ok {
+  color: #3c8f3c;
 }
 
 .sr-only {

@@ -1,70 +1,84 @@
 <template>
   <section class="page-describe">
     <div class="hero">
-      <button class="nav-btn" type="button" aria-label="이전" @click="prevSlide">‹</button>
       <div class="hero-visual">
-        <div class="hero-image">
-          <p>{{ currentSlide.title }}</p>
+        <div ref="trackRef" class="hero-track" role="list" aria-label="슬라이드 목록" @scroll="handleScroll"
+          @wheel.prevent="handleWheel">
+          <div class="hero-slide" v-for="slide in slides" :key="slide.id" role="listitem">
+            <div class="hero-image">
+              <img :src="slide.image" :alt="slide.title" class="hero-photo" />
+            </div>
+          </div>
         </div>
         <div class="hero-dots" role="tablist" aria-label="슬라이드 선택">
-          <button
-            v-for="(dot, idx) in slides"
-            :key="dot.id"
-            class="dot"
-            :class="{ active: idx === currentIndex }"
-            type="button"
-            :aria-label="`슬라이드 ${idx + 1}`"
-            @click="goToSlide(idx)"
-          />
+          <button v-for="(slide, idx) in slides" :key="slide.id" class="dot" :class="{ active: idx === currentIndex }"
+            type="button" :aria-label="`슬라이드 ${idx + 1}`" @click="goToSlide(idx)"></button>
         </div>
       </div>
-      <button class="nav-btn" type="button" aria-label="다음" @click="nextSlide">›</button>
     </div>
 
-    <div class="bullet-list">
-      <ol>
-        <li>당신의 피부와 건강을, 한 번의 분석으로 더 똑똑하게.</li>
-        <li>나를 이해하는 건강 케어, NutriCare가 시작합니다.</li>
-        <li>내가 처방하는 맞춤 영양·피부 솔루션, 지금 경험해 보세요.</li>
-      </ol>
-      <div class="cta">
-        <button type="button" @click="goToAnalysis">분석 하기</button>
-      </div>
+
+    <div class="cta">
+      <button type="button" @click="goToAnalysis">분석 하기</button>
     </div>
+
   </section>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import IntroImg1 from '@/assets/IntroImg1.png'
+import IntroImg2 from '@/assets/IntroImg2.png'
+import IntroImg3 from '@/assets/IntroImg3.png'
 
 const router = useRouter()
 
 const slides = ref([
-  { id: 1, title: '건강한 인물 이미지 1' },
-  { id: 2, title: '건강한 인물 이미지 2' },
-  { id: 3, title: '건강한 인물 이미지 3' },
+  { id: 1, title: '건강한 인물 이미지 1', image: IntroImg1 },
+  { id: 2, title: '건강한 인물 이미지 2', image: IntroImg2 },
+  { id: 3, title: '건강한 인물 이미지 3', image: IntroImg3 },
 ])
 
 const currentIndex = ref(0)
-const currentSlide = computed(() => slides.value[currentIndex.value])
-
-function nextSlide() {
-  currentIndex.value = (currentIndex.value + 1) % slides.value.length
-}
-
-function prevSlide() {
-  currentIndex.value = (currentIndex.value - 1 + slides.value.length) % slides.value.length
-}
+const trackRef = ref(null)
+const wheelLock = ref(false)
 
 function goToSlide(idx) {
-  if (idx < 0 || idx >= slides.value.length) return
+  if (!trackRef.value) return
+  const slideWidth = trackRef.value.clientWidth
+  trackRef.value.scrollTo({
+    left: slideWidth * idx,
+    behavior: 'smooth',
+  })
   currentIndex.value = idx
 }
 
+function handleScroll() {
+  if (!trackRef.value) return
+  const slideWidth = trackRef.value.clientWidth || 1
+  const nextIndex = Math.round(trackRef.value.scrollLeft / slideWidth)
+  currentIndex.value = Math.min(Math.max(nextIndex, 0), slides.value.length - 1)
+}
+
+function handleWheel(event) {
+  if (wheelLock.value || !trackRef.value) return
+  const delta = Math.abs(event.deltaY) > Math.abs(event.deltaX) ? event.deltaY : event.deltaX
+  if (delta === 0) return
+
+  const next = delta > 0 ? currentIndex.value + 1 : currentIndex.value - 1
+  const clamped = Math.min(Math.max(next, 0), slides.value.length - 1)
+  if (clamped === currentIndex.value) return
+
+  wheelLock.value = true
+  goToSlide(clamped)
+  setTimeout(() => {
+    wheelLock.value = false
+  }, 400)
+}
+
 function goToAnalysis() {
-  // TODO: 분석 페이지 라우트 이름 확정 시 name 변경
-  router.push({ name: 'analysisUpload' }).catch(() => {})
+  router.push({ name: 'analysisUpload' }).catch(() => { })
 }
 </script>
 
@@ -81,54 +95,84 @@ function goToAnalysis() {
 
 .hero {
   width: 100%;
-  max-width: 900px;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 12px;
-}
-
-.nav-btn {
-  width: 36px;
-  height: 36px;
-  border: 1px solid #d4d4d4;
-  border-radius: 6px;
-  background: #fafafa;
-  color: #555;
-  font-size: 20px;
-  cursor: pointer;
+  max-width: 1200px;
+  display: flex;
+  justify-content: center;
 }
 
 .hero-visual {
+  width: 100%;
   border: 1px solid #d4d4d4;
   background: #fdfdfd;
-  padding: 16px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 12px;
 }
 
+.hero-track {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding: 6px 4px 12px;
+  overscroll-behavior-x: contain;
+}
+
+.hero-track::-webkit-scrollbar {
+  height: 10px;
+}
+
+.hero-track::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.hero-track::-webkit-scrollbar-thumb {
+  background: #c8c8c8;
+  border-radius: 999px;
+}
+
+.hero-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+}
+
 .hero-image {
   width: 100%;
-  min-height: 320px;
-  background: #c8c8c8;
-  display: grid;
-  place-items: center;
-  color: #3b3b3b;
-  font-size: 16px;
-  font-weight: 600;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+}
+.hero-image p {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
   text-align: center;
 }
 
+.hero-photo {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
 .hero-dots {
-  display: flex;
-  gap: 8px;
+  display: none;
+  gap: 12px;
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   border: 1px solid #bdbdbd;
   background: #efefef;
@@ -179,14 +223,14 @@ function goToAnalysis() {
 }
 
 @media (max-width: 768px) {
-  .hero {
-    grid-template-columns: 1fr;
+  .hero-image {
+    max-height: none;
+    min-height: 280px;
   }
 
-  .nav-btn {
-    justify-self: center;
-    width: 44px;
-    height: 44px;
+  .hero-track {
+    gap: 8px;
+    grid-auto-columns: unset;
   }
 }
 </style>

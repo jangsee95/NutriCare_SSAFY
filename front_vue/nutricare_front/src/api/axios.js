@@ -1,0 +1,69 @@
+import axios from 'axios';
+import { useUserStore } from '@/stores/user';
+
+const instance = axios.create({
+  baseURL: 'http://localhost:8080/api',
+  timeout: 5000,   // 요청 타임아웃 (5초)
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// 2. 요청 인터셉터 설정
+instance.interceptors.request.use(
+  (config) => {
+    // 로컬 스토리지에서 토큰 가져오기
+    const token = localStorage.getItem('accessToken');
+
+    // 토큰이 있으면 헤더에 담기
+    if (token) {
+      // 백엔드 JwtAuthenticationFilter에서 "Bearer " 접두사를 체크하므로 포함해야 함
+      config.headers['Authorization'] = `Bearer ${token}`; 
+    }
+
+    return config; // 변경된 설정으로 요청 계속 진행
+  },
+  (error) => {
+    // 요청 설정 중에 에러가 난 경우
+    console.error('Request Error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// 3. 응답 인터셉터 설정
+instance.interceptors.response.use(
+  (response) => {
+    // 2xx 범위의 상태 코드는 이 함수가 트리거 됩니다.
+    // 데이터만 바로 반환하고 싶다면 return response.data; 처럼 쓸 수도 있습니다.
+    return response; 
+  },
+  async (error) => {
+    // 2xx 외의 상태 코드는 이 함수가 트리거 됩니다.
+    const userStore = useUserStore();
+
+    // 에러 응답이 있는 경우
+    if (error.response) {
+      const status = error.response.status;
+
+      // [401 Unauthorized] 토큰 만료 또는 인증 실패
+      if (status === 401) {
+        console.warn('세션이 만료되었습니다. 다시 로그인해주세요.');
+        
+        // 1. 스토어의 로그아웃 액션 실행 (상태 초기화)
+        userStore.logout(); 
+        
+        // 2. 로그인 페이지로 강제 이동
+        // router.push('/login'); // 혹은 window.location.href = '/login';
+      }
+      
+      // [403 Forbidden] 권한 없음 (ADMIN 전용 페이지 접근 등)
+      if (status === 403) {
+        alert('접근 권한이 없습니다.');
+      }
+    }
+
+    return Promise.reject(error); // 컴포넌트의 catch 블록으로 에러 전달
+  }
+);
+
+export default instance; // 생성한 인스턴스를 내보냄

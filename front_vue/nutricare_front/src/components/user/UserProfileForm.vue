@@ -10,24 +10,35 @@
           :type="field.type"
           :placeholder="field.label"
           :required="field.required"
+          :step="field.step"
         />
       </div>
 
+      <div class="field">
+        <label class="icon-label" for="gender">👤</label>
+        <div class="radio-group" id="gender">
+          <label v-for="option in genderOptions" :key="option.value" class="radio">
+            <input v-model="form.gender" type="radio" name="gender" :value="option.value" />
+            <span>{{ option.label }}</span>
+          </label>
+        </div>
+      </div>
+
       <div class="field activity">
-        <label class="icon-label" for="activity">📈</label>
+        <label class="icon-label" for="activity">🏃</label>
         <div class="radio-group" id="activity">
           <label v-for="option in activityOptions" :key="option.value" class="radio">
-            <input v-model="form.activity" type="radio" name="activity" :value="option.value" />
+            <input v-model="form.activityLevel" type="radio" name="activity" :value="option.value" />
             <span>{{ option.label }}</span>
           </label>
         </div>
       </div>
 
       <div class="field goal">
-        <label class="icon-label" for="goal">📅</label>
+        <label class="icon-label" for="goal">🎯</label>
         <div class="radio-group" id="goal">
           <label v-for="option in goalOptions" :key="option.value" class="radio">
-            <input v-model="form.goal" type="radio" name="goal" :value="option.value" />
+            <input v-model="form.goalType" type="radio" name="goal" :value="option.value" />
             <span>{{ option.label }}</span>
           </label>
         </div>
@@ -35,54 +46,105 @@
 
       <div class="actions">
         <button type="button" class="secondary" @click="onLater">나중에 하기</button>
-        <button type="submit" class="primary">등록</button>
+        <button type="submit" class="primary">수정</button>
       </div>
     </form>
   </section>
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const userStore = useUserStore()
 
+// 백엔드 필드명에 맞춘 폼 구조
 const form = reactive({
   name: '',
-  height: '',
-  weight: '',
-  activity: 'low',
-  goal: 'maintain',
+  birthYear: '',
+  gender: '',
+  heightCm: '',
+  weightKg: '',
+  activityLevel: '',
+  goalType: '',
 })
+
+function syncFormFromStore() {
+  const info = userStore.userInfo || {}
+  const profile = userStore.healthProfile || {}
+
+  form.name = info.name ?? ''
+  form.birthYear = info.birthYear  ?? ''
+  form.gender = info.gender ?? 'MALE'
+  form.heightCm = profile.heightCm ?? ''
+  form.weightKg = profile.weightKg ?? ''
+  form.activityLevel = profile.activityLevel ?? 'LOW'
+  form.goalType = profile.goalType ?? 'MAINTAIN'
+}
+
+onMounted(() => {
+  syncFormFromStore()
+})
+
+watch(
+  () => [userStore.userInfo, userStore.healthProfile],
+  () => syncFormFromStore(),
+  { deep: true }
+)
+
+function normalizeOneDecimal(value) {
+  if (value === null || value === undefined || value === '') return ''
+  const num = Number(value)
+  if (Number.isNaN(num)) return ''
+  return Number(num.toFixed(1))
+}
 
 const basicFields = [
   { key: 'name', label: '이름', icon: '😊', type: 'text', required: true },
-  { key: 'height', label: '키(cm)', icon: '🗝️', type: 'number', required: false },
-  { key: 'weight', label: '몸무게(kg)', icon: '❤️', type: 'number', required: false },
+  { key: 'birthYear', label: '출생연도', icon: '📅', type: 'number', required: false, step: '1' },
+  { key: 'heightCm', label: '키(cm)', icon: '📏', type: 'number', required: false, step: '0.1' },
+  { key: 'weightKg', label: '몸무게(kg)', icon: '⚖️', type: 'number', required: false, step: '0.1' },
+]
+
+const genderOptions = [
+  { value: 'MALE', label: '남성' },
+  { value: 'FEMALE', label: '여성' },
 ]
 
 const activityOptions = [
-  { value: 'low', label: '하(운동 안함)' },
-  { value: 'mid', label: '중(주 2-3회)' },
-  { value: 'high', label: '상(주 4회 이상)' },
+  { value: 'LOW', label: '낮음 (운동 안함)' },
+  { value: 'MEDIUM', label: '보통 (주 2-3회)' },
+  { value: 'HIGH', label: '높음 (주 4회 이상)' },
 ]
 
 const goalOptions = [
-  { value: 'gain', label: '증량' },
-  { value: 'maintain', label: '유지' },
-  { value: 'loss', label: '감량' },
+  { value: 'GAIN', label: '증량' },
+  { value: 'MAINTAIN', label: '유지' },
+  { value: 'LOSS', label: '감량' },
 ]
 
 async function onSubmit() {
-  // TODO: axios 연동 및 검증 추가
-  await userStore.updateProfile({ ...form })
-  router.push({ name: 'Home' }).catch(() => {})
+  const payload = {
+    user: {
+      name: form.name,
+      birthYear: form.birthYear,
+      gender: form.gender,
+    },
+    healthProfile: {
+      heightCm: normalizeOneDecimal(form.heightCm),
+      weightKg: normalizeOneDecimal(form.weightKg),
+      activityLevel: form.activityLevel,
+      goalType: form.goalType,
+    },
+  }
+  await userStore.updateProfile(payload)
+  router.push({ name: 'userDetail' }).catch(() => {})
 }
 
 function onLater() {
-  router.push({ name: 'Home' }).catch(() => {})
+  router.push({ name: 'userDetail' }).catch(() => {})
 }
 </script>
 
@@ -136,6 +198,7 @@ input {
   align-items: center;
   gap: 6px;
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .actions {

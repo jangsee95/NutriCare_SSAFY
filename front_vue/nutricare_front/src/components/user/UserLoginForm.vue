@@ -3,12 +3,12 @@
     <h2 class="sr-only">로그인</h2>
     <form @submit.prevent="onLogin">
       <div class="field">
-        <label class="icon-label" for="loginId">😊</label>
-        <input id="loginId" v-model="form.userId" type="text" placeholder="아이디" required />
+        <label class="icon-label" for="loginEmail">😊</label>
+        <input id="loginEmail" v-model="email" type="text" placeholder="이메일" required />
       </div>
       <div class="field">
         <label class="icon-label" for="loginPw">🔒</label>
-        <input id="loginPw" v-model="form.password" type="password" placeholder="비밀번호" required />
+        <input id="loginPw" v-model="password" type="password" placeholder="비밀번호" required />
       </div>
       <div class="actions">
         <button type="button" class="secondary" @click="goSignup">회원가입</button>
@@ -19,27 +19,40 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+import { ref } from 'vue';
+import { useUserStore } from '@/stores/user';
+import { useRouter } from 'vue-router';
 
-const router = useRouter()
-const userStore = useUserStore()
+const userStore = useUserStore();
+const router = useRouter();
 
-const form = reactive({
-  userId: '',
-  password: '',
-})
+const email = ref('');
+const password = ref('');
 
-async function onLogin() {
-  // TODO: axios 연동/검증 추가
-  await userStore.login({ userId: form.userId })
-  router.push({ name: 'Home' }).catch(() => {})
-}
+// 로그인 처리 함수 (하나로 통합)
+const onLogin = async () => {
+  // 1. 유효성 검사 (HTML required가 있지만 한 번 더 체크)
+  if (!email.value || !password.value) {
+    alert("이메일과 비밀번호를 모두 입력해주세요.");
+    return;
+  }
 
-function goSignup() {
-  router.push({ name: 'signup' }).catch(() => {})
-}
+  try {
+    // 2. 스토어의 login 액션 호출
+    await userStore.login(email.value, password.value);
+    
+    // 3. 성공 시 메인 페이지로 이동
+    router.replace('/'); 
+  } catch (error) {
+    // 4. 실패 시 에러 처리 (스토어에서 던진 에러를 여기서 잡음)
+    console.error('로그인 에러:', error);
+    alert('로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.');
+  }
+};
+
+const goSignup = () => {
+  router.push({ name: 'signup' });
+};
 </script>
 
 <style scoped>

@@ -1,33 +1,138 @@
 import { defineStore } from 'pinia'
+import axios from '@/api/axios'
+import router from '@/router'
 
-// 간단한 사용자 상태 스토어 (TODO: API 연동)
+// 사용자 상태 스토어
 export const useUserStore = defineStore('user', {
   state: () => ({
-    isLoggedIn: false,
-    userId: '',
-    profile: {},
+    token: localStorage.getItem('accessToken') || null,
+    userId: localStorage.getItem('userId') || null,
+    isLoggedIn: !!localStorage.getItem('accessToken'),
+    userInfo: {},
+    healthProfile: {},
   }),
+
+  getters: {
+    userName: (state) => (state.userInfo ? state.userInfo.name : 'Guest'),
+    isAdmin: (state) => state.userInfo?.role === 'ADMIN',
+  },
+
   actions: {
     async fetchMe() {
-      // TODO: axios.get('/api/user/me') 사용
+      if (!this.token) return
+      try {
+        // 인터셉터가 헤더에 토큰을 자동으로 넣어줍니다.
+        const response = await axios.get('/users/me')
+
+        // 백엔드 UserDetailResponse 구조: { user: {...}, healthProfile: {...} }
+        this.userInfo = response.data.user
+        this.healthProfile = response.data.healthProfile || {}
+
+        this.isLoggedIn = true // 정보 로드 성공 시 로그인 확인
+      } catch (error) {
+        console.error('내 정보 조회 실패 (토큰 만료 등):', error)
+        // 토큰이 유효하지 않으면 로그아웃 처리
+        this.logout()
+      }
+    },
+
+    async login(email, password) {
+      try {
+        // 백엔드 Login API가 @RequestParam을 사용하므로 params로 전달
+        const response = await axios.post('/users/login', null, {
+          params: { email, password },
+        })
+
+        const { token, userId } = response.data
+
+        if (token) {
+          // Pinia 상태 업데이트
+          this.token = token
+          this.userId = userId
+          this.isLoggedIn = true
+
+          // LocalStorage에 저장
+          localStorage.setItem('accessToken', token)
+          localStorage.setItem('userId', userId)
+
+          // 사용자 정보 가져오기
+          await this.fetchMe()
+
+          console.log('로그인 성공:', this.userId)
+          return true
+        }
+      } catch (error) {
+        console.error('로그인 요청 실패:', error)
+        throw error
+      }
+    },
+
+    // 로그아웃
+    logout() {
+      this.token = null
+      this.userId = null
       this.isLoggedIn = false
-      this.userId = 'User_ID'
+      this.userInfo = null
+      this.healthProfile = null
+
+      localStorage.removeItem('accessToken')
+      localStorage.removeItem('userId')
+
+      router.push('/').catch(() => {})
     },
-    async login(payload) {
-      // TODO: axios.post('/api/login', payload)
-      this.isLoggedIn = true
-      this.userId = payload?.userId || payload?.email || 'User_ID'
-    },
-    async logout() {
-      // TODO: axios.post('/api/logout')
-      this.isLoggedIn = false
-      this.userId = ''
-      this.profile = {}
-    },
+
     async updateProfile(payload) {
-      // TODO: axios.put('/api/user/profile', payload)
-      this.profile = { ...this.profile, ...payload }
+      try {
+        // 백엔드에서 프로필 갱신을 담당하는 엔드포인트로 교체하세요.
+        // 예: await axios.put('/users/me', payload)
+        const response = await axios.patch('/users/me/info', payload)
+
+        // 응답에 최신 사용자/프로필 정보가 오면 반영
+        if (response.data?.user) {
+          this.userInfo = response.data.user
+        }
+        if (response.data?.healthProfile) {
+          this.healthProfile = response.data.healthProfile
+        } else {
+          // healthProfile이 안 오면 로컬 상태라도 업데이트
+          if (payload.healthProfile) {
+            this.healthProfile = { ...(this.healthProfile || {}), ...payload.healthProfile }
+          }
+          if (payload.user) {
+            this.userInfo = { ...(this.userInfo || {}), ...payload.user }
+          }
+        }
+        await this.fetchMe()
+        return true
+      } catch (error) {
+        console.error('프로필 업데이트 실패:', error)
+        throw error
+      }
+    },
+
+    async updatePassword(payload) {
+      try {
+        // 예시: { currentPassword, newPassword }
+        await axios.patch('/users/me/password', payload)
+        return true
+      } catch (error) {
+        console.error('비밀번호 변경 실패:', error)
+        throw error
+      }
+    },
+
+    // 새로고침 시 세션 복구
+    restoreSession() {
+      const token = localStorage.getItem('accessToken')
+      const userId = localStorage.getItem('userId')
+      if (!token) return
+
+      this.token = token
+      this.userId = userId
+      this.isLoggedIn = true
+
+      // 사용자 정보 갱신
+      this.fetchMe()
     },
   },
 })
-
