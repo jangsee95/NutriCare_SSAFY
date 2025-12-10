@@ -54,7 +54,7 @@ const fields = [
 
 function syncFromStore() {
   const info = userStore.userInfo || {}
-  const profile = userStore.profile || {}
+  const profile = userStore.healthProfile || {}
 
   form.email = info.email || ''
   form.name = info.name || ''
@@ -71,7 +71,7 @@ onMounted(() => {
 })
 
 watch(
-  () => [userStore.userInfo, userStore.healthProfile, userStore.profile],
+  () => [userStore.userInfo, userStore.healthProfile],
   () => syncFromStore(),
   { deep: true }
 )

@@ -72,7 +72,7 @@ const form = reactive({
 
 function syncFormFromStore() {
   const info = userStore.userInfo || {}
-  const profile = userStore.profile || {}
+  const profile = userStore.healthProfile || {}
 
   form.name = info.name ?? ''
   form.birthYear = info.birthYear  ?? ''
@@ -88,7 +88,7 @@ onMounted(() => {
 })
 
 watch(
-  () => [userStore.userInfo, userStore.healthProfile, userStore.profile],
+  () => [userStore.userInfo, userStore.healthProfile],
   () => syncFormFromStore(),
   { deep: true }
 )
