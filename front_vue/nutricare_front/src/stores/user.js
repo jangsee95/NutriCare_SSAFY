@@ -82,8 +82,43 @@ export const useUserStore = defineStore('user', {
     },
 
     async updateProfile(payload) {
-      // TODO: axios.put('/api/user/profile', payload)
-      this.healthProfile = { ...this.healthProfile, ...payload }
+      try {
+        // 백엔드에서 프로필 갱신을 담당하는 엔드포인트로 교체하세요.
+        // 예: await axios.put('/users/me', payload)
+        const response = await axios.patch('/users/me/info', payload)
+
+        // 응답에 최신 사용자/프로필 정보가 오면 반영
+        if (response.data?.user) {
+          this.userInfo = response.data.user
+        }
+        if (response.data?.healthProfile) {
+          this.healthProfile = response.data.healthProfile
+        } else {
+          // healthProfile이 안 오면 로컬 상태라도 업데이트
+          if (payload.healthProfile) {
+            this.healthProfile = { ...(this.healthProfile || {}), ...payload.healthProfile }
+          }
+          if (payload.user) {
+            this.userInfo = { ...(this.userInfo || {}), ...payload.user }
+          }
+        }
+        await this.fetchMe()
+        return true
+      } catch (error) {
+        console.error('프로필 업데이트 실패:', error)
+        throw error
+      }
+    },
+
+    async updatePassword(payload) {
+      try {
+        // 예시: { currentPassword, newPassword }
+        await axios.patch('/users/me/password', payload)
+        return true
+      } catch (error) {
+        console.error('비밀번호 변경 실패:', error)
+        throw error
+      }
     },
 
     // 새로고침 시 세션 복구

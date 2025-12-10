@@ -10,6 +10,7 @@
           :type="field.type"
           :placeholder="field.label"
           :required="field.required"
+          :step="field.step"
         />
       </div>
 
@@ -45,7 +46,7 @@
 
       <div class="actions">
         <button type="button" class="secondary" @click="onLater">나중에 하기</button>
-        <button type="submit" class="primary">등록</button>
+        <button type="submit" class="primary">수정</button>
       </div>
     </form>
   </section>
@@ -93,11 +94,18 @@ watch(
   { deep: true }
 )
 
+function normalizeOneDecimal(value) {
+  if (value === null || value === undefined || value === '') return ''
+  const num = Number(value)
+  if (Number.isNaN(num)) return ''
+  return Number(num.toFixed(1))
+}
+
 const basicFields = [
   { key: 'name', label: '이름', icon: '😊', type: 'text', required: true },
-  { key: 'birthYear', label: '출생연도', icon: '📅', type: 'number', required: false },
-  { key: 'heightCm', label: '키(cm)', icon: '📏', type: 'number', required: false },
-  { key: 'weightKg', label: '몸무게(kg)', icon: '⚖️', type: 'number', required: false },
+  { key: 'birthYear', label: '출생연도', icon: '📅', type: 'number', required: false, step: '1' },
+  { key: 'heightCm', label: '키(cm)', icon: '📏', type: 'number', required: false, step: '0.1' },
+  { key: 'weightKg', label: '몸무게(kg)', icon: '⚖️', type: 'number', required: false, step: '0.1' },
 ]
 
 const genderOptions = [
@@ -118,22 +126,25 @@ const goalOptions = [
 ]
 
 async function onSubmit() {
-  // TODO: axios 연동 및 검증 추가
   const payload = {
-    name: form.name,
-    birthYear: form.birthYear,
-    gender: form.gender,
-    heightCm: form.heightCm,
-    weightKg: form.weightKg,
-    activityLevel: form.activityLevel,
-    goalType: form.goalType,
+    user: {
+      name: form.name,
+      birthYear: form.birthYear,
+      gender: form.gender,
+    },
+    healthProfile: {
+      heightCm: normalizeOneDecimal(form.heightCm),
+      weightKg: normalizeOneDecimal(form.weightKg),
+      activityLevel: form.activityLevel,
+      goalType: form.goalType,
+    },
   }
   await userStore.updateProfile(payload)
-  router.push({ name: 'Home' }).catch(() => {})
+  router.push({ name: 'userDetail' }).catch(() => {})
 }
 
 function onLater() {
-  router.push({ name: 'Home' }).catch(() => {})
+  router.push({ name: 'userDetail' }).catch(() => {})
 }
 </script>
 
