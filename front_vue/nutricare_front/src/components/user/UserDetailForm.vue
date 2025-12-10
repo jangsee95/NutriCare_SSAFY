@@ -21,7 +21,7 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive, watch, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
@@ -32,8 +32,9 @@ const userStore = useUserStore()
 const form = reactive({
   userId: route.params.userid || '',
   email: '',
-  birth: '',
   name: '',
+  birthYear: '',
+  gender: '',
   height: '',
   weight: '',
   activity: '',
@@ -41,15 +42,39 @@ const form = reactive({
 })
 
 const fields = [
-  { key: 'userId', label: '아이디', icon: '😊', type: 'text', readonly: true },
-  { key: 'email', label: '이메일', icon: '✉️', type: 'email', readonly: true },
-  { key: 'birth', label: '생년', icon: '📅', type: 'text', readonly: true },
+  { key: 'email', label: '이메일', icon: '📧', type: 'email', readonly: true },
   { key: 'name', label: '이름', icon: '😊', type: 'text', readonly: true },
-  { key: 'height', label: '키(cm)', icon: '🗝️', type: 'text', readonly: true },
-  { key: 'weight', label: '몸무게(kg)', icon: '❤️', type: 'text', readonly: true },
-  { key: 'activity', label: '활동 정도', icon: '📈', type: 'text', readonly: true },
-  { key: 'goal', label: '목표', icon: '📅', type: 'text', readonly: true },
+  { key: 'birthYear', label: '출생연도', icon: '📅', type: 'text', readonly: true },
+  { key: 'gender', label: '성별', icon: '👤', type: 'text', readonly: true },
+  { key: 'height', label: '키(cm)', icon: '📏', type: 'text', readonly: true },
+  { key: 'weight', label: '몸무게(kg)', icon: '⚖️', type: 'text', readonly: true },
+  { key: 'activity', label: '활동 정도', icon: '🏃', type: 'text', readonly: true },
+  { key: 'goal', label: '목표', icon: '🎯', type: 'text', readonly: true },
 ]
+
+function syncFromStore() {
+  const info = userStore.userInfo || {}
+  const profile = userStore.profile || {}
+
+  form.email = info.email || ''
+  form.name = info.name || ''
+  form.birthYear = info.birthYear ?? ''
+  form.gender = info.gender ?? ''
+  form.height = profile.heightCm ?? profile.height ?? ''
+  form.weight = profile.weightKg ?? profile.weight ?? ''
+  form.activity = profile.activityLevel ?? profile.activity ?? ''
+  form.goal = profile.goalType ?? profile.goal ?? ''
+}
+
+onMounted(() => {
+  syncFromStore()
+})
+
+watch(
+  () => [userStore.userInfo, userStore.healthProfile, userStore.profile],
+  () => syncFromStore(),
+  { deep: true }
+)
 
 function onEditProfile() {
   router.push({ name: 'updateProfile', params: { userid: form.userId || 'me' } }).catch(() => {})
@@ -58,9 +83,6 @@ function onEditProfile() {
 function onEditPassword() {
   router.push({ name: 'updatePassword', params: { userid: form.userId || 'me' } }).catch(() => {})
 }
-
-// TODO: mount 시 사용자 상세 API로 form 채우기
-// onMounted(async () => { const data = await fetchUser(route.params.userid); Object.assign(form, data) })
 </script>
 
 <style scoped>

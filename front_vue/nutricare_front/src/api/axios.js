@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useUserStore } from '@/stores/user';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:8080/api', // 프록시 설정이 되어 있다면 '/api', 아니면 'http://localhost:8080/api'
+  baseURL: 'http://localhost:8080/api',
   timeout: 5000,   // 요청 타임아웃 (5초)
   headers: {
     'Content-Type': 'application/json',

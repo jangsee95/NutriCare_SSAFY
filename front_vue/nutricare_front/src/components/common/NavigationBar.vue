@@ -25,8 +25,9 @@
         <template v-else>
           <button class="profile" type="button" @click="goTo('mypage')">
             <span class="avatar" aria-hidden="true">👤</span>
-            <span class="user-id">{{ userStore.userId || 'User_ID' }}</span>
+            <span class="user-id">{{ userStore.userInfo.name }}</span>
           </button>
+          <button class="action-btn" type="button" @click="userStore.logout">로그아웃</button>
         </template>
       </div>
     </div>
