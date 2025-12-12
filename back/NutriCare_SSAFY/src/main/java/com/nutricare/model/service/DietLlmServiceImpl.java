@@ -46,12 +46,13 @@ public class DietLlmServiceImpl implements DietLlmService {
      * @return FastAPI 응답(JSON 문자열)
      */
     @Override
-    public String requestDietGeneration(DietContext context, CaloriePlan plan) {
+    public String requestDietGeneration(DietContext context, CaloriePlan plan, String ruleText) {
         try {
             // 1) 요청 페이로드 구성
             var payload = new java.util.HashMap<String, Object>();
             payload.put("context", context);
             payload.put("caloriePlan", plan);
+            payload.put("rulesText", ruleText);
 
             // 2) Java 객체 -> JSON 문자열 변환
             String json = objectMapper.writeValueAsString(payload);

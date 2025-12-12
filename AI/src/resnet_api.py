@@ -1,4 +1,4 @@
-﻿from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from resnet_mlflow import predict_image, _load_image_from_url_or_path, CLASS_NAMES, DEFAULT_MODEL_URI
