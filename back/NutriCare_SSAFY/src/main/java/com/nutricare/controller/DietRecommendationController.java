@@ -25,6 +25,7 @@ import com.nutricare.model.service.AnalysisResultService;
 import com.nutricare.model.service.CalorieCalculator;
 import com.nutricare.model.service.DietContextService;
 import com.nutricare.model.service.DietLlmService;
+import com.nutricare.model.service.DietRuleEngine;
 import com.nutricare.model.service.DietRecommendationService;
 import com.nutricare.model.service.DietResultService;
 import com.nutricare.model.service.HealthProfileService;
@@ -53,6 +54,7 @@ public class DietRecommendationController {
 
     private final DietContextService dietContextService;
     private final DietLlmService dietLlmService;
+    private final DietRuleEngine dietRuleEngine;
     private final DietResultService dietResultService;
     private final DietRecommendationService dietRecommendationService;
     private final PhotoService photoService;
@@ -61,6 +63,7 @@ public class DietRecommendationController {
 
     public DietRecommendationController(DietContextService dietContextService,
                                         DietLlmService dietLlmService,
+                                        DietRuleEngine dietRuleEngine,
                                         DietResultService dietResultService,
                                         DietRecommendationService dietRecommendationService,
                                         PhotoService photoService,
@@ -68,6 +71,7 @@ public class DietRecommendationController {
                                         HealthProfileService healthProfileService) {
         this.dietContextService = dietContextService;
         this.dietLlmService = dietLlmService;
+        this.dietRuleEngine = dietRuleEngine;
         this.dietResultService = dietResultService;
         this.dietRecommendationService = dietRecommendationService;
         this.photoService = photoService;
@@ -133,7 +137,8 @@ public class DietRecommendationController {
             }
 
             // 3) FastAPI/LLM 호출 (프롬프트 구성은 Python 단 처리)
-            String responseJson = dietLlmService.requestDietGeneration(context, plan);
+            DietRuleEngine.RuleText ruleText = dietRuleEngine.buildRules(context, plan);
+            String responseJson = dietLlmService.requestDietGeneration(context, plan, ruleText.toString());
 
             // 4) 응답 JSON을 diet_result에 저장
             dietResultService.saveDietResultsFromJson(recId, responseJson);

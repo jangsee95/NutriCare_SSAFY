@@ -23,8 +23,11 @@ public class DietContext {
     // ===== analysis_result =====
     private String diagnosisName;
     private LocalDateTime analysisCreatedAt;
+    private Long photoId;
+    private String photoUrl;
 
     // ===== diet_recommendation =====
+    private Long recId;
     private String recMemo;
     private LocalDateTime recCreatedAt;
 
@@ -59,6 +62,15 @@ public class DietContext {
 
     public String getDiagnosisName() { return diagnosisName; }
     public void setDiagnosisName(String diagnosisName) { this.diagnosisName = diagnosisName; }
+
+    public Long getPhotoId() { return photoId; }
+    public void setPhotoId(Long photoId) { this.photoId = photoId; }
+
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
+
+    public Long getRecId() { return recId; }
+    public void setRecId(Long recId) { this.recId = recId; }
 
     public LocalDateTime getAnalysisCreatedAt() { return analysisCreatedAt; }
     public void setAnalysisCreatedAt(LocalDateTime analysisCreatedAt) { this.analysisCreatedAt = analysisCreatedAt; }
