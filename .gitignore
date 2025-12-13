@@ -1,5 +1,7 @@
 # MLflow
 mlruns/
+qlora-qwen3vl/
+qlora-adapter/
 mlflow.db
 
 # Model weights
