@@ -37,7 +37,7 @@
           
           <div class="images-preview mb-4 row g-2" v-if="board.images && board.images.length">
             <div class="col-md-4 col-sm-6 col-12" v-for="img in board.images" :key="img.imageId">
-              <img :src="img.imageUrl" class="img-fluid rounded shadow-sm" alt="게시글 이미지" />
+              <img :src="img.imageUrl" class="img-fluid rounded shadow-sm" alt="게시글 이미지" @error="handleImageError" />
             </div>
           </div>
 
@@ -137,6 +137,9 @@ const boardId = computed(() => route.params.id);
 const newCommentContent = ref('');
 const editingCommentId = ref(null);
 const editingCommentContent = ref('');
+const handleImageError = (e) => {
+  e.target.src = '/assets/Logo.png'; // assets에 있는 기본 이미지 경로
+};
 
 // --- TTS Feature ---
 watch(board, (newBoard) => {
