@@ -205,6 +205,7 @@ public class DietRecommendationController {
         }
     }
     
+    @Operation(summary = "분석 ID로 식단 추천 조회", description = "특정 분석 결과(analysisId)에 연결된 식단 추천 정보를 조회합니다.")
     @GetMapping("/analysis/{analysisId}")
     public ResponseEntity<?> getRecByAnalysisId(@PathVariable Long analysisId) {
     	// 1. 서비스에서 analysisId로 조회 (서비스에 이 메서드가 없다면 만들어야 함!)

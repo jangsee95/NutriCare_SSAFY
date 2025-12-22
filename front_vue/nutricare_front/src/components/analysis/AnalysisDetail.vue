@@ -135,14 +135,32 @@ onMounted(async () => {
 
 async function handleCreateRecommendation() {
   const analysisId = user_analysis_result.value?.analysisId
+  console.log("[AnalysisDetail] 버튼 클릭됨. analysisId:", analysisId);
+  
   if (!analysisId) {
+    console.error("[AnalysisDetail] analysisId가 없습니다!", user_analysis_result.value);
     alert("분석 ID가 없어 추천을 생성할 수 없습니다.")
     return
   }
-  await analysisStore.createAndFetchDietRecommendation({
-    analysisId,
-    memo: "식단 추천 생성 요청"
-  })
+  
+  console.log("[AnalysisDetail] 스토어 함수 호출 준비...");
+  console.log("[AnalysisDetail] analysisStore:", analysisStore);
+  
+  try {
+    if (typeof analysisStore.createAndFetchDietRecommendation !== 'function') {
+       throw new Error("createAndFetchDietRecommendation 함수가 스토어에 없습니다.");
+    }
+
+    console.log("[AnalysisDetail] 스토어의 createAndFetchDietRecommendation 호출 시도...");
+    await analysisStore.createAndFetchDietRecommendation({
+      analysisId,
+      memo: "식단 추천 생성 요청"
+    })
+    console.log("[AnalysisDetail] 스토어 함수 실행 완료");
+  } catch (err) {
+    console.error("[AnalysisDetail] 실행 중 에러 발생:", err);
+    alert("오류가 발생했습니다: " + err.message);
+  }
 }
 
 
