@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nutricare.model.dto.DietContext;
 import com.nutricare.model.dto.DietResult;
@@ -45,7 +46,7 @@ public class DietLlmServiceImpl implements DietLlmService {
         this.fastApiMapper = new ObjectMapper();
         this.fastApiMapper.registerModule(new JavaTimeModule());
         this.fastApiMapper.setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
-
+        this.fastApiMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         this.dietLlmUrl = dietLlmUrl;
     }
 
@@ -67,6 +68,8 @@ public class DietLlmServiceImpl implements DietLlmService {
 
             // 2) Java 객체 -> JSON 문자열 변환 (snake_case)
             String json = fastApiMapper.writeValueAsString(payload);
+            System.out.println("========== 식단 요청 json ========= ");
+            System.out.println(json);
 
             // 3) 헤더 설정: JSON 포맷으로 보냄
             HttpHeaders headers = new HttpHeaders();
@@ -78,8 +81,10 @@ public class DietLlmServiceImpl implements DietLlmService {
             // 5) FastAPI 서버에 POST 요청 전송
             // - body : context JSON
             // - return type : String
+            System.out.println("========== Fast Api 호출 전 ========= ");
             String response = restTemplate.postForObject(dietLlmUrl, entity, String.class);
-
+            System.out.println(response);
+            System.out.println("========== 호출 후 ========= ");
             // 6) FastAPI 응답(JSON, snake_case)을 파싱해 DietResult 리스트로 역직렬화
             var results = fastApiMapper.readValue(
                     cleanJson(response),

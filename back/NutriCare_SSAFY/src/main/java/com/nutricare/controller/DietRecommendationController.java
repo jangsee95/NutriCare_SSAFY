@@ -203,7 +203,22 @@ public class DietRecommendationController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @Operation(summary = "분석 ID로 식단 추천 조회", description = "특정 분석 결과(analysisId)에 연결된 식단 추천 정보를 조회합니다.")
+    @GetMapping("/analysis/{analysisId}")
+    public ResponseEntity<?> getRecByAnalysisId(@PathVariable Long analysisId) {
+    	// 1. 서비스에서 analysisId로 조회 (서비스에 이 메서드가 없다면 만들어야 함!)
+    	DietRecommendation rec = dietRecommendationService.getByAnalysisId(analysisId);
+    	
+    	if (rec != null) {
+    		return new ResponseEntity<>(rec, HttpStatus.OK);
+    	} else {
+    		// 없으면 404 Not Found를 보내서 프론트의 catch 블록(404 체크)이 동작하게 함
+    		return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    	}
+    }
 
+    
     // ===========================
     // Helper Method (권한 검사)
     // ===========================
