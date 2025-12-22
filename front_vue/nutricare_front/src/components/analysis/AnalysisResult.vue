@@ -18,6 +18,10 @@
         </p>
       </div>
 
+      <div class="disclaimer">
+        <p>⚠️ 이 결과는 참고용이며, 정확한 진단은 전문의와 상담하세요.</p>
+      </div>
+
       <div class="actions">
         <button class="primary" type="button" @click="goDiet">
           맞춤 식단 추천 받기
@@ -137,6 +141,24 @@ function goMyAnalysisList() {
   font-weight: 700;
   color: #333;
   margin: 0;
+}
+
+.disclaimer {
+  margin-top: 10px;
+  padding: 16px;
+  background-color: #fff9e6;
+  border: 1px solid #ffe58f;
+  border-radius: 8px;
+  color: #856404;
+  font-size: 14px;
+  text-align: center;
+  width: 100%;
+  max-width: 420px;
+}
+
+.disclaimer p {
+  margin: 0;
+  font-weight: 500;
 }
 
 .actions {
