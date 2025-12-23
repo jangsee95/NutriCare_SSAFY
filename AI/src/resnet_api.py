@@ -25,7 +25,14 @@ def predict_endpoint(body: PredictRequest):
         logger.info("추론 시작")
         pred_label, probs = predict_image(local_path, class_names=CLASS_NAMES)
         logger.info("추론 완료 pred=%s", pred_label)
-        logger.info("확률 분포(probs)=%s", probs.tolist())
+        probs_list = probs.tolist()
+        class_names = CLASS_NAMES or [str(i) for i in range(len(probs_list))]
+        if CLASS_NAMES is None:
+            logger.info("CLASS_NAMES 미설정: 인덱스 라벨로 대체")
+        logger.info(
+            "클래스별 확률=%s",
+            {name: float(probs_list[i]) for i, name in enumerate(class_names)}
+        )
     except FileNotFoundError as exc:
         logger.warning("이미지 찾을 수 없음: %s", exc)
         raise HTTPException(status_code=400, detail=str(exc))
@@ -33,10 +40,11 @@ def predict_endpoint(body: PredictRequest):
         logger.exception("예상치 못한 추론 오류")
         raise HTTPException(status_code=500, detail=f"예상치 못한 오류: {exc}")
 
-    probs_list = probs.tolist()
-    class_names = CLASS_NAMES or [str(i) for i in range(len(probs_list))]
-    if CLASS_NAMES is None:
-        logger.info("CLASS_NAMES 미설정: 인덱스 라벨로 대체")
+    if "probs_list" not in locals():
+        probs_list = probs.tolist()
+        class_names = CLASS_NAMES or [str(i) for i in range(len(probs_list))]
+        if CLASS_NAMES is None:
+            logger.info("CLASS_NAMES 미설정: 인덱스 라벨로 대체")
     top_k = max(1, min(body.top_k, len(probs_list)))
     topk_indices = np.argsort(probs)[::-1][:top_k]
 
