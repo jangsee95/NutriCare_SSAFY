@@ -10,6 +10,7 @@
 - 건강 정보 기반 맞춤 식단 추천 (VLM + QLoRA)
 - 게시판/댓글/이미지 업로드
 - JWT 로그인, Google OAuth, 권한 분리 (USER/ADMIN)
+- Speech-To-Text API : 음성 페이징 기능
 
 ## 기술 스택
 - Frontend: Vue 3, Vite, Pinia, Axios, Bootstrap
