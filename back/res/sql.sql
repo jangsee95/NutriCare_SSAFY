@@ -68,7 +68,7 @@ CREATE TABLE `analysis_result` (
   `analysis_id`    BIGINT       NOT NULL AUTO_INCREMENT,
   `photo_id`       BIGINT       NOT NULL,
   `diagnosis_name` VARCHAR(50)  NOT NULL,         -- top-1 라벨
-  `probabilities`  JSON         NOT NULL,         -- 클래스별 확률 (class_names 인덱스와 정렬)
+  `probabilities`  TEXT         NOT NULL,         -- 클래스별 확률 (class_names 인덱스와 정렬, JSON 문자열)
   `created_at`     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`analysis_id`),
   KEY `idx_analysis_photo` (`photo_id`),
