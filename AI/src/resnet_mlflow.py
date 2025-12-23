@@ -40,7 +40,7 @@ DEFAULT_MODEL_URI = str(
 )
 
 # 클래스 이름을 자동 로드할 기본 경로: AI/data/train
-DEFAULT_CLASS_DIR = "../data/train"
+DEFAULT_CLASS_DIR = _BASE_DIR / "data" / "train"
 
 # (model_uri, device.type) -> (model, device)
 _MODEL_CACHE: Dict[Tuple[str, str], Tuple[torch.nn.Module, torch.device]] = {}
@@ -67,6 +67,7 @@ def _get_authed_session() -> Optional[AuthorizedSession]:
 
 def load_class_names_from_dir(class_dir: Path) -> Optional[List[str]]:
     """ImageFolder 구조의 하위 디렉터리명을 클래스 이름 리스트로 반환."""
+    class_dir = Path(class_dir)
     if not class_dir.exists():
         print(f"[WARN] 클래스 경로가 없습니다: {class_dir}")
         return None
