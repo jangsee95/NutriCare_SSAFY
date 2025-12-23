@@ -5,6 +5,8 @@ import numpy as np
 
 from resnet_mlflow import predict_image, _load_image_from_url_or_path, CLASS_NAMES
 
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
+
 class PredictRequest(BaseModel):
     photo_id: int
     user_id: int
