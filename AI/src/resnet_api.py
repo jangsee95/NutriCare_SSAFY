@@ -5,8 +5,6 @@ import numpy as np
 
 from resnet_mlflow import predict_image, _load_image_from_url_or_path, CLASS_NAMES
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
-
 class PredictRequest(BaseModel):
     photo_id: int
     user_id: int
@@ -15,7 +13,13 @@ class PredictRequest(BaseModel):
 
 app = FastAPI(title="ResNet18 Inference (MLflow)", version="1.0")
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("uvicorn.error")
+if not logger.handlers:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    )
+logger.setLevel(logging.INFO)
 
 @app.post("/analyze", summary="예측 결과 반환")
 def predict_endpoint(body: PredictRequest):
@@ -35,6 +39,7 @@ def predict_endpoint(body: PredictRequest):
             "클래스별 확률=%s",
             {name: float(probs_list[i]) for i, name in enumerate(class_names)}
         )
+        print("클래스 확률 출력 결과:", {name: float(probs_list[i]) for i, name in enumerate(class_names)})
     except FileNotFoundError as exc:
         logger.warning("이미지 찾을 수 없음: %s", exc)
         raise HTTPException(status_code=400, detail=str(exc))
