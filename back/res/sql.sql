@@ -18,8 +18,8 @@ CREATE TABLE `user` (
   `created_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `is_deleted`    TINYINT(1)   NOT NULL DEFAULT 0,
-  `provider`		VARCHAR(20) DEFAULT NULL,
-  `provider_id`		VARCHAR(255) DEFAULT NULL,
+  `provider`        VARCHAR(20) DEFAULT NULL,
+  `provider_id`        VARCHAR(255) DEFAULT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `uk_user_email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -139,7 +139,7 @@ CREATE TABLE `diet_result` (
 CREATE TABLE `board` (
   `board_id`   BIGINT       NOT NULL AUTO_INCREMENT,
   `user_id`    BIGINT       NOT NULL,
-  `user_name`	VARCHAR(255) NOT NULL,
+  `user_name`    VARCHAR(255) NOT NULL,
   `title`      VARCHAR(200) NOT NULL,
   `content`    TEXT         NOT NULL,
   `category`   VARCHAR(50)  NULL,
@@ -164,7 +164,7 @@ CREATE TABLE `comment` (
   `comment_id` BIGINT       NOT NULL AUTO_INCREMENT,
   `board_id`   BIGINT       NOT NULL,
   `user_id`    BIGINT       NOT NULL,
-  `user_name`	VARCHAR(255) NOT NULL,
+  `user_name`    VARCHAR(255) NOT NULL,
   `content`    TEXT         NOT NULL,
   `created_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -201,4 +201,3 @@ CREATE TABLE board_image (
     ON DELETE CASCADE
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
