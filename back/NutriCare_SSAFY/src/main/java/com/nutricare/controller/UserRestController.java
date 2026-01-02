@@ -60,16 +60,38 @@ public class UserRestController {
                         + "발급된 JWT는 Authorization 헤더에 Bearer {token} 형태로 포함하여 요청해야 합니다."
     )
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestParam String email,
-                               @RequestParam String password) {
-
+    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password) {
         User user = userService.login(email, password);
-        if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이메일 또는 비밀번호가 일치하지 않습니다.");
+        if (user == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패");
 
-        String token = jwtUtil.generateToken(user.getUserId(), user.getEmail(), user.getRole());
-        LoginResponse response = new LoginResponse(token, user.getUserId());
+        // 1. 토큰 생성
+        String accessToken = jwtUtil.generateAccessToken(user.getUserId(), user.getEmail(), user.getRole());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getUserId());
 
-        return ResponseEntity.ok(response);
+        // 2. DB에 Refresh Token 저장 (UserService 호출)
+        // REFRESH_EXPIRATION 값은 JwtUtil에 정의된 값을 가져오거나 별도로 관리
+        userService.saveRefreshToken(user.getUserId(), refreshToken, jwtUtil.getREFRESH_EXPIRATION()); 
+
+        return ResponseEntity.ok(new LoginResponse(accessToken, refreshToken, user.getUserId()));
+    }
+    
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestParam String refreshToken) {
+    	if (jwtUtil.validateToken(refreshToken)) {
+    		Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+    		
+    		if (!userService.isValidRefreshToken(userId, refreshToken)) {
+    			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("이미 로그아웃되었거나 유효하지 않은 토큰입니다.");
+    		}
+    		
+    		User user = userService.getUserById(userId);
+    		
+    		if (user != null) {
+    			String newAccessToken = jwtUtil.generateAccessToken(user.getUserId(), user.getEmail(), user.getRole());
+    			return ResponseEntity.ok(newAccessToken);
+    		}
+    	}
+    	return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("유효하지 않은 Refresh Token입니다.");
     }
 
  // 3) 내 정보 조회 
@@ -160,8 +182,13 @@ public class UserRestController {
                         + "프론트엔드에서 토큰 삭제 방식으로 처리합니다."
     )
     @PostMapping("/logout")
-    public String logout() {
-        return "logout success";
+    public ResponseEntity<?> logout(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails != null) {
+            Long userId = userDetails.getUser().getUserId();
+            userService.logout(userId); // DB에서 리프레시 토큰 삭제
+            return ResponseEntity.ok("로그아웃 성공");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("인증된 사용자가 아닙니다.");
     }
 }
 

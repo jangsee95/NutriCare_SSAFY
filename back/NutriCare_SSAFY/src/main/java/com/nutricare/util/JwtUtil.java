@@ -17,7 +17,8 @@ public class JwtUtil {
 
     private final Key key;
 
-    private final long EXPIRATION = 1000 * 60 * 60; // 1시간
+    private final long ACCESS_EXPIRATION = 1000 * 60; // 30분
+    private final long REFRESH_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7일
 
     /**
      * JwtUtil은 오직 환경변수 `JWT_SECRET`만 사용합니다.
@@ -29,15 +30,23 @@ public class JwtUtil {
         }
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
+    public String generateRefreshToken(Long userId) {
+    	return Jwts.builder()
+    			.setSubject(String.valueOf(userId))
+    			.setIssuedAt(new Date())
+    			.setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
+    			.signWith(key, SignatureAlgorithm.HS256)
+    			.compact();
+    }
 
     // 1) 토큰 생성
-    public String generateToken(Long userId, String email, String role) {
+    public String generateAccessToken(Long userId, String email, String role) {
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
                 .claim("email", email)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -68,4 +77,21 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
+    
+    public boolean validateToken(String token) {
+        try {
+            getClaims(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+	public long getACCESS_EXPIRATION() {
+		return ACCESS_EXPIRATION;
+	}
+	public long getREFRESH_EXPIRATION() {
+		return REFRESH_EXPIRATION;
+	}
+    
+    
 }

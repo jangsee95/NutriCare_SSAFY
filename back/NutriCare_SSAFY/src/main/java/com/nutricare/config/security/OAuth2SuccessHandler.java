@@ -33,7 +33,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         // 2. JWT 토큰 생성 (기존 JwtUtil 재활용!)
         // ★ 중요: JwtUtil.createToken() 메서드가 String(email)을 받는지, 
         // Long(userId)을 받는지 확인하고 맞춰주세요. 보통 email로 많이 만듭니다.
-        String accessToken = jwtUtil.generateToken(userId, email, role);
+        String accessToken = jwtUtil.generateAccessToken(userId, email, role);
 
         System.out.println("토큰 발급 성공: " + accessToken);
 

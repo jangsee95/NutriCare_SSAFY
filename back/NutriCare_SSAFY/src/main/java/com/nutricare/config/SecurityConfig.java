@@ -1,5 +1,6 @@
 package com.nutricare.config;
 
+import java.util.Arrays;
 import java.util.Collections;
 import com.nutricare.config.security.OAuth2UserService;
 import org.springframework.context.annotation.Bean;
@@ -46,7 +47,7 @@ public class SecurityConfig {
 		.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 		// 4. URL별 권한 설정 (기존 WebConfig의 인터셉터 설정을 여기서 대체합니다)
 		.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/api/users/login", "/api/users").permitAll()
+				.requestMatchers("/api/users/login", "/api/users", "/api/users/refresh").permitAll()
                 .requestMatchers("/images/**", "/css/**", "/js/**", "/favicon.ico").permitAll()
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/voice/**").permitAll()
@@ -69,6 +70,7 @@ public class SecurityConfig {
 	private CorsConfigurationSource corsConfigurationSource() {
         return request -> {
             CorsConfiguration config = new CorsConfiguration();
+            config.setAllowedOriginPatterns(Arrays.asList("*"));
             config.setAllowedHeaders(Collections.singletonList("*"));
             config.setAllowedMethods(Collections.singletonList("*"));
             config.setAllowedOriginPatterns(Collections.singletonList("http://localhost:5173")); // 프론트엔드 주소 (Vue 기본 포트)

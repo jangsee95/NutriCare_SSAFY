@@ -14,6 +14,7 @@ public interface UserService {
 
     // 상세 조회
     User getUserDetail(Long userId);
+    User getUserById(Long userId);
 
     // 수정
     boolean updateUserInfo(User user);
@@ -29,4 +30,8 @@ public interface UserService {
     void logout(Long userId);
     
     UserDetailResponse getUserWithProfile(Long userId);
+    
+    void saveRefreshToken(Long userId, String token, long expirationMillis);
+    
+    boolean isValidRefreshToken(Long userId, String token);
 }

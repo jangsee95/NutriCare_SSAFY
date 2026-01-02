@@ -1,4 +1,4 @@
--- 25.12.23 수정
+-- 26.1.2 수정
 -- 데이터베이스 생성 및 선택
 DROP DATABASE IF EXISTS nutricare_db;
 CREATE DATABASE nutricare_db CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
@@ -198,6 +198,25 @@ CREATE TABLE board_image (
   CONSTRAINT fk_board_image_board
     FOREIGN KEY (board_id)
     REFERENCES board(board_id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+------------------------------------------------------------
+-- 10) refresh_Token: 리프래쉬 토큰 보관
+------------------------------------------------------------
+
+CREATE TABLE `refresh_token` (
+  `token_id`      BIGINT       NOT NULL AUTO_INCREMENT,
+  `user_id`       BIGINT       NOT NULL,          -- 어떤 사용자의 토큰인지 참조
+  `token_value`   VARCHAR(512) NOT NULL,          -- 실제 토큰 문자열
+  `expiry_date`   DATETIME     NOT NULL,          -- 토큰 만료 일시
+  `created_at`    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`token_id`),
+  UNIQUE KEY `uk_refresh_token_user` (`user_id`), -- 한 사용자당 하나의 유효한 리프레시 토큰만 유지 (선택 사항)
+  CONSTRAINT `fk_refresh_token_user`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `user` (`user_id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

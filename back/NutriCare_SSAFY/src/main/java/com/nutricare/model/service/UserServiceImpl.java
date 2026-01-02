@@ -1,17 +1,19 @@
 package com.nutricare.model.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.nutricare.config.security.CustomUserDetails;
 import com.nutricare.model.dao.HealthProfileDao;
+import com.nutricare.model.dao.RefreshTokenDao;
 import com.nutricare.model.dao.UserDao;
 import com.nutricare.model.dto.HealthProfile;
+import com.nutricare.model.dto.RefreshToken;
 import com.nutricare.model.dto.User;
 import com.nutricare.model.dto.UserDetailResponse;
 
@@ -21,12 +23,14 @@ public class UserServiceImpl implements UserService {
     private final UserDao userDao;
     private final HealthProfileDao healthProfileDao;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenDao refreshTokenDao;
 
     @Autowired
-    public UserServiceImpl(UserDao userDao, HealthProfileDao healthProfileDao, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserDao userDao, HealthProfileDao healthProfileDao, PasswordEncoder passwordEncoder, RefreshTokenDao refreshTokenDao) {
         this.userDao = userDao;
         this.healthProfileDao = healthProfileDao;
         this.passwordEncoder = passwordEncoder;
+        this.refreshTokenDao = refreshTokenDao;
     }
 
     // 1) 회원가입
@@ -49,6 +53,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @PreAuthorize("@userSecurity.isSelf(#userId, principal)")
     public User getUserDetail(Long userId) {
+        return userDao.findUserById(userId);
+    }
+    
+    @Override
+    public User getUserById(Long userId) {
         return userDao.findUserById(userId);
     }
 
@@ -107,6 +116,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void logout(Long userId) {
         // JWT를 사용한다면 서버에서는 특별한 동작 없음 -> 추후 고민할 내용
+    	refreshTokenDao.deleteByUserId(userId);
     }
     
     // 8) 회원 정보 + 건강 정보 조합하여 반환
@@ -121,6 +131,25 @@ public class UserServiceImpl implements UserService {
         
         // 3. 두 정보를 DTO 하나로 묶어서 반환
         return new UserDetailResponse(user, hp);
+    }
+    
+    @Transactional
+    public void saveRefreshToken(Long userId, String token, long expirationMillis) {
+        LocalDateTime expiryDate = LocalDateTime.now().plusNanos(expirationMillis * 1_000_000);
+        RefreshToken refreshToken = new RefreshToken(userId, token, expiryDate);
+
+        // 기존 토큰이 있는지 확인
+        RefreshToken existing = refreshTokenDao.findByUserId(userId);
+        if (existing != null) {
+            refreshTokenDao.updateToken(refreshToken); // 있으면 업데이트
+        } else {
+            refreshTokenDao.insertToken(refreshToken); // 없으면 신규 저장
+        }
+    }
+    
+    public boolean isValidRefreshToken(Long userId, String token) {
+        RefreshToken storedToken = refreshTokenDao.findByUserId(userId);
+        return storedToken != null && storedToken.getTokenValue().equals(token);
     }
 
 }
